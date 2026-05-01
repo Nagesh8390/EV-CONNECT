@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Connect Payment</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="payment-wrapper">
+        <div class="payment-container" id="payment-container">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-area">
+                    <div class="logo-icon">⚡</div>
+                    <h2 class="logo-text">EV Connect</h2>
+                </div>
+                <p class="amount-display">Amount to pay: <strong>₹ 500.00</strong></p>
+                <div class="invoice-details">Ref: ORD-982374</div>
+            </div>
+
+            <div class="view-container">
+                <!-- State 1: Payment Methods -->
+                <div class="view active show" id="view-payment">
+                    <div class="tabs-container">
+                        <div class="tabs">
+                            <button class="tab-btn active" data-target="tab-card">Card</button>
+                            <button class="tab-btn" data-target="tab-upi">UPI</button>
+                            <button class="tab-btn" data-target="tab-netbanking">NetBanking</button>
+                            <button class="tab-btn" data-target="tab-wallet">Wallet</button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content active" id="tab-card">
+                        <div class="form-group">
+                            <label>Card Number</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="off">
+                                <span class="card-icon" id="cardIcon">💳</span>
+                            </div>
+                            <div class="error-msg" id="cardNumberError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cardholder Name</label>
+                            <input type="text" id="cardName" placeholder="Name on card" autocomplete="off">
+                        </div>
+                        <div class="flex-row">
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" autocomplete="off">
+                                <div class="error-msg" id="expiryError"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="password" id="cvv" placeholder="•••" maxlength="3" autocomplete="off">
+                                <div class="error-msg" id="cvvError"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-upi">
+                        <div class="form-group">
+                            <label>Enter UPI ID</label>
+                            <input type="text" id="upiId" placeholder="username@upi">
+                        </div>
+                        <div class="qr-divider">OR</div>
+                        <div class="qr-code-dummy">
+                            <div class="qr-box">
+                                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </div>
+                            <p>Scan QR to Pay</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-netbanking">
+                        <div class="form-group">
+                            <label>Select Bank</label>
+                            <select id="bankSelect">
+                                <option value="">Select your bank</option>
+                                <option value="sbi">State Bank of India</option>
+                                <option value="hdfc">HDFC Bank</option>
+                                <option value="icici">ICICI Bank</option>
+                                <option value="axis">Axis Bank</option>
+                                <option value="kotak">Kotak Mahindra Bank</option>
+                            </select>
+                        </div>
+                        <div class="popular-banks">
+                            <div class="bank-pill">SBI</div>
+                            <div class="bank-pill">HDFC</div>
+                            <div class="bank-pill">ICICI</div>
+                            <div class="bank-pill">Axis</div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-wallet">
+                        <div class="form-group">
+                            <label>Select Wallet</label>
+                            <select id="walletSelect">
+                                <option value="">Select wallet</option>
+                                <option value="paytm">Paytm</option>
+                                <option value="phonepe">PhonePe</option>
+                                <option value="amazon">Amazon Pay</option>
+                                <option value="mobikwik">MobiKwik</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="pay-btn" id="payBtn">Proceed to Pay ₹ 500.00</button>
+                        <div class="security-info">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <span>Secured by 256-bit encryption</span>
+                        </div>
+                        <p class="demo-disclaimer">This is a demo payment system. Do not enter real banking details.</p>
+                    </div>
+                </div>
+
+                <!-- State 2: Processing -->
+                <div class="view" id="view-processing">
+                    <div class="processing-content">
+                        <div class="spinner"></div>
+                        <h3 class="processing-title">Processing Payment...</h3>
+                        <p class="processing-subtitle">Please securely authenticating with your bank. Do not close or refresh this page.</p>
+                    </div>
+                </div>
+
+                <!-- State 3: OTP Input -->
+                <div class="view" id="view-otp">
+                    <div class="otp-header">
+                        <div class="bank-logo-dummy">Bank Demo</div>
+                        <h3>Authentication Required</h3>
+                    </div>
+                    <p class="otp-instruction">We have sent a One Time Password (OTP) to your registered mobile number ending in <strong>XXXX</strong>.</p>
+                    <div class="otp-inputs" id="otpContainer">
+                        <input type="text" class="otp-field" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-field" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-field" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                        <input type="text" class="otp-field" maxlength="1" pattern="[0-9]*" inputmode="numeric">
+                    </div>
+                    <div class="otp-actions">
+                        <button class="pay-btn" id="verifyOtpBtn">Verify & Submit</button>
+                        <button class="resend-btn" id="resendOtpBtn">Resend OTP</button>
+                    </div>
+                    <p class="demo-disclaimer" style="margin-top: 20px;">Hint: Enter any 4 digits (e.g., 1234) for this demo.</p>
+                </div>
+
+                <!-- State 4: Success Screen -->
+                <div class="view" id="view-success">
+                    <div class="success-animation">
+                        <div class="checkmark-circle">
+                            <div class="checkmark-stem"></div>
+                            <div class="checkmark-kick"></div>
+                        </div>
+                    </div>
+                    <h3 class="success-title">Payment Completed Successfully!</h3>
+                    
+                    <div class="receipt-card">
+                        <div class="receipt-row">
+                            <span class="receipt-label">Amount Paid</span>
+                            <span class="receipt-value highlight">₹ 500.00</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Transaction ID</span>
+                            <span class="receipt-value" id="summaryTxnId">TXN12345678</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Date & Time</span>
+                            <span class="receipt-value" id="summaryDate">...</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Payment Method</span>
+                            <span class="receipt-value" id="summaryMethod">Card</span>
+                        </div>
+                    </div>
+
+                    <div class="success-actions">
+                        <button class="outline-btn" id="downloadReceiptBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download Receipt
+                        </button>
+                        <button class="pay-btn" id="goBackBtn">Return to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Receipt Modal -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>EV Connect Receipt</h3>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="receiptBody">
+                <!-- Receipt details populated via JS -->
+                 <div class="receipt-company">
+                    <h4>EV Connect Inc.</h4>
+                    <p>Demo Street, Charging City</p>
+                 </div>
+                 <hr>
+                 <div class="receipt-details">
+                    <p><strong>Billed To:</strong> <span id="receiptName">Customer</span></p>
+                    <p><strong>Date:</strong> <span id="receiptDate"></span></p>
+                    <p><strong>Order Ref:</strong> ORD-982374</p>
+                    <p><strong>Txn ID:</strong> <span id="receiptTxn"></span></p>
+                 </div>
+                 <table class="receipt-table">
+                     <tr>
+                         <th>Description</th>
+                         <th>Amount</th>
+                     </tr>
+                     <tr>
+                         <td>EV Charging Wallet Top-up</td>
+                         <td>₹ 500.00</td>
+                     </tr>
+                     <tr class="receipt-total">
+                         <td>Total Paid</td>
+                         <td>₹ 500.00</td>
+                     </tr>
+                 </table>
+                 <p class="receipt-footer">Thank you for using EV Connect!<br>This is a computer-generated dummy receipt.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="pay-btn" onclick="window.print()">Print</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Effects (Generated on the fly via JS Web Audio API for better compatibility) -->
+    <script src="script.js"></script>
+</body>
+</html>

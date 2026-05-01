@@ -1,0 +1,29 @@
+/* =====================================================
+   typography.css — Font definitions & text helpers
+   ===================================================== */
+
+/* Inter font is loaded in reset.css via @import.
+   This file is reserved for any typography-level utilities
+   and text scale helpers used across the app. */
+
+/* --- Type Scale Helpers --- */
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+p {
+    line-height: 1.6;
+}
+
+/* --- Link Reset --- */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* --- Monospace (OTP display, codes) --- */
+.font-mono {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.1em;
+}

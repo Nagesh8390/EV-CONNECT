@@ -1,0 +1,284 @@
+/* =====================================================
+   map.css — Find Stations / Map page styles
+   ===================================================== */
+
+/* --- Two-pane Map Layout --- */
+.map-layout {
+    display: flex;
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+}
+
+.map-container {
+    flex: 2;
+    position: relative;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* --- Dark map tiles via CSS filter --- */
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out,
+.leaflet-control-attribution {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* --- Routing Panel Dark Theme --- */
+.leaflet-routing-container {
+    background-color: var(--bg-darker) !important;
+    color: var(--text-light) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--accent-neon) !important;
+    border-radius: 8px !important;
+}
+
+.leaflet-routing-alt table {
+    display: none !important;
+}
+
+.leaflet-routing-alt {
+    max-height: unset;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+}
+
+.leaflet-routing-alt h2 {
+    color: var(--accent-neon) !important;
+    font-size: 1.1rem;
+}
+
+.leaflet-routing-alt h3 {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+}
+
+/* --- Right Booking Panel --- */
+.booking-panel {
+    flex: 1;
+    min-width: 400px;
+    padding: 2rem;
+    background: var(--bg-darker);
+    border-left: 1px solid var(--glass-border);
+    overflow-y: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.panel-header {
+    margin-bottom: 2rem;
+    color: var(--accent-neon);
+}
+
+/* --- Booking Form --- */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-control label {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.form-control select,
+.form-control input {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    font-family: inherit;
+}
+
+.form-control select:focus,
+.form-control input:focus {
+    outline: none;
+    border-color: var(--accent-neon);
+}
+
+.form-control select option {
+    background-color: #0b1120;
+    color: white;
+}
+
+/* --- Time Slots Grid --- */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.slot-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.slot-btn.available:hover {
+    border-color: var(--accent-neon);
+    background: rgba(57, 255, 20, 0.1);
+}
+
+.slot-btn.selected {
+    background: var(--accent-neon);
+    color: var(--bg-dark);
+    border-color: var(--accent-neon);
+    font-weight: bold;
+}
+
+.slot-btn.booked {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: rgba(255, 0, 0, 0.5);
+    color: #ff4c4c;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* --- Price Summary --- */
+.price-total {
+    background: rgba(57, 255, 20, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px dashed var(--accent-neon);
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.price-total h3 {
+    color: var(--accent-neon);
+    font-size: 2rem;
+    margin: 0.5rem 0;
+}
+
+/* --- Login Required Modal --- */
+.login-required-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.login-required-box {
+    background: var(--bg-darker);
+    border: 1px solid var(--accent-neon);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(57, 255, 20, 0.15);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.login-required-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.login-required-box h3 {
+    color: var(--accent-neon);
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.login-required-box p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.login-required-box .btn-go-login {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--accent-neon);
+    color: var(--bg-dark);
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+    transition: opacity 0.2s;
+}
+
+.login-required-box .btn-go-login:hover {
+    opacity: 0.85;
+}
+
+.login-required-box .btn-dismiss {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.login-required-box .btn-dismiss:hover {
+    border-color: var(--text-light);
+    color: var(--text-light);
+}
+
+/* --- Payment / Success Modals (map-scoped, inside booking panel) --- */
+/* .booking-panel .modal removed to use global fixed positioning from reset.css */
+
+.modal-content {
+    padding: 3rem;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: var(--accent-neon);
+    margin-bottom: 1rem;
+}
+
+.otp-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid var(--accent-neon);
+}

@@ -1,0 +1,16 @@
+/* =====================================================
+   register.css — Registration page specific overrides
+   ===================================================== */
+
+/* Base auth styles come from login.css (included via main.css).
+   This file holds any register-specific layout adjustments. */
+
+/* Register form is slightly wider than login */
+.auth-box.register-box {
+    max-width: 450px;
+}
+
+/* Subtle gradient variation for register page background */
+.auth-container.register-bg {
+    background: radial-gradient(circle at 90% 10%, rgba(57, 255, 20, 0.05) 0%, transparent 50%);
+}

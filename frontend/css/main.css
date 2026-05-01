@@ -1,0 +1,22 @@
+/* =====================================================
+   main.css — Master stylesheet entry point
+   Import order matters: base → layout → pages
+   ===================================================== */
+
+/* Base */
+@import './base/reset.css';
+@import './base/typography.css';
+
+/* Layout */
+@import './layout/header.css';
+@import './layout/footer.css';
+
+/* Pages */
+@import './pages/login.css';
+@import './pages/register.css';
+@import './pages/dashboard.css';
+@import './pages/map.css';
+@import './pages/admin.css';
+
+/* Responsive */
+@import './responsive.css';

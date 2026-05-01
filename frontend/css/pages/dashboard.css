@@ -1,0 +1,130 @@
+/* =====================================================
+   dashboard.css — Booking History page styles
+   ===================================================== */
+
+/* --- Page Container --- */
+.dashboard-container {
+    padding: 100px 4rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Page Header Row --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+/* --- Tab Switcher --- */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tab {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
+    color: var(--text-muted);
+    font-family: inherit;
+}
+
+.tab.active {
+    background: var(--accent-neon);
+    color: var(--bg-dark);
+    font-weight: 600;
+}
+
+/* --- Booking Card --- */
+.booking-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-details h3 {
+    color: var(--accent-neon);
+    margin-bottom: 0.5rem;
+}
+
+.booking-meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    display: flex;
+    gap: 1.5rem;
+}
+
+/* --- OTP Badge --- */
+.otp-badge {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed var(--accent-neon);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    color: white;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-upcoming {
+    background: rgba(57, 255, 20, 0.2);
+    color: var(--accent-neon);
+    border: 1px solid var(--accent-neon);
+}
+
+.status-completed {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+/* --- Booking Actions --- */
+.booking-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-reschedule, .btn-cancel {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-reschedule {
+    border: 1px solid var(--accent-neon);
+    color: var(--accent-neon);
+}
+
+.btn-reschedule:hover {
+    background: rgba(57, 255, 20, 0.1);
+}
+
+.btn-cancel {
+    border: 1px solid #ff4c4c;
+    color: #ff4c4c;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 76, 76, 0.1);
+}

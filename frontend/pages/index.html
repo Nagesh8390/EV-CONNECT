@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV CONNECT - Connect to the Future</title>
+    <meta name="description" content="Find nearby EV charging stations, reserve your slot, and power your electric journey with EV CONNECT's smart charging network.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../logo.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://evconnect.com/">
+    <meta property="og:title" content="EV CONNECT - Connect to the Future">
+    <meta property="og:description" content="Smart EV charging network. Find stations and book slots instantly.">
+    <meta property="og:image" content="../logo.png">
+
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        /* Homepage-specific styles */
+        .hero {
+            height: 500vh;
+            position: relative;
+            background: #000;
+        }
+
+        .hero-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-visual {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #heroCanvas {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+
+        .intro-section {
+            padding: 8rem 4rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: radial-gradient(circle at 50% 0%, rgba(57, 255, 20, 0.1) 0%, transparent 60%);
+        }
+
+        .intro-title {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .intro-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .section {
+            padding: 5rem 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .section-title span {
+            color: var(--accent-neon);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-neon);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-neon);
+        }
+
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .calc-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: white;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-neon);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+        .form-group select option {
+            background-color: #0b1120;
+            color: white;
+        }
+
+        .calc-results {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .result-item {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-neon);
+        }
+
+        /* Chatbot */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-neon);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            z-index: 1000;
+            animation: pulseGlow 2s infinite;
+            font-size: 1.6rem;
+            border: none;
+            transition: transform 0.2s;
+        }
+        .chatbot-btn:hover { transform: scale(1.1); }
+
+        .chatbot-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 340px;
+            max-height: 500px;
+            background: var(--bg-darker);
+            border: 1px solid var(--accent-neon);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(57,255,20,0.15);
+            display: flex;
+            flex-direction: column;
+            z-index: 999;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .chatbot-panel.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        .chatbot-header {
+            background: linear-gradient(135deg, rgba(57,255,20,0.15), rgba(57,255,20,0.05));
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .chatbot-avatar {
+            width: 36px; height: 36px;
+            background: var(--accent-neon);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .chatbot-header-info h4 { font-size: 0.95rem; margin: 0; }
+        .chatbot-header-info span { font-size: 0.75rem; color: var(--accent-neon); }
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.6rem 0.9rem;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            animation: fadeInUp 0.2s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .chat-msg.bot {
+            background: rgba(57,255,20,0.1);
+            border: 1px solid rgba(57,255,20,0.2);
+            color: var(--text-light);
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+        }
+        .chat-msg.user {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+        }
+        .chatbot-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            padding: 0 1rem 0.5rem;
+        }
+        .suggestion-chip {
+            background: transparent;
+            border: 1px solid var(--accent-neon);
+            color: var(--accent-neon);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-chip:hover {
+            background: var(--accent-neon);
+            color: var(--bg-dark);
+        }
+        .chatbot-input-row {
+            display: flex;
+            padding: 0.8rem;
+            gap: 0.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        .chatbot-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            color: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .chatbot-input:focus { border-color: var(--accent-neon); }
+        .chatbot-send {
+            background: var(--accent-neon);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .chatbot-send:hover { opacity: 0.8; }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>CONNECT</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="map.html">Find Stations</a></li>
+            <li><a href="history.html">Bookings</a></li>
+            <li><a href="admin.html">Admin Portal</a></li>
+            <li><a href="login.html">Account</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="btn-login">Login</a>
+            <a href="register.html" class="btn-signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero: Scroll-based frame animation -->
+        <section class="hero" id="hero-section">
+            <div class="hero-sticky">
+                <div class="hero-visual">
+                    <canvas id="heroCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Intro text below animation -->
+        <section class="intro-section">
+            <h1 class="intro-title">Connect to the<br>future</h1>
+            <p class="intro-subtitle">Find nearby EV charging stations, reserve your slot, and power your electric
+                journey with our smart charging network.</p>
+
+            <div class="charging-indicator glass-panel" style="margin-bottom: 3rem;">
+                <span class="kwh" style="font-size: 1.5rem; font-weight: 700; color: var(--accent-neon);">+0.5kWh</span>
+                <span class="price" style="margin-left: 1rem;">= ₹6.40</span>
+            </div>
+
+            <a href="map.html" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 3rem;">Start Charge</a>
+        </section>
+
+        <!-- Why EV CONNECT feature cards -->
+        <section class="section">
+            <h2 class="section-title">Why Choose <span>EV CONNECT</span></h2>
+            <div class="features-grid">
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon">🌿</div>
+                    <h3>Clean Energy</h3>
+                    <p class="text-muted">Zero emissions. Sustainable and eco-friendly charging solutions.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Find Stations</h3>
+                    <p class="text-muted">Locate nearby charging stations instantly using our interactive map.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon">📅</div>
+                    <h3>Reserve Slots</h3>
+                    <p class="text-muted">Book your charging slot in advance to avoid waiting times.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon">💳</div>
+                    <h3>Smart Payment</h3>
+                    <p class="text-muted">Calculate prices upfront and pay seamlessly via our platform.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charging Calculator -->
+        <section class="section">
+            <h2 class="section-title">Charging <span>Calculator</span></h2>
+            <div class="calculator-container glass-panel">
+                <div class="calc-form">
+                    <div class="form-group">
+                        <label for="carModel">Car Model</label>
+                        <select id="carModel">
+                            <option value="40">Tata Nexon EV (40.5 kWh)</option>
+                            <option value="30">Tata Tiago EV (24 kWh)</option>
+                            <option value="60">MG ZS EV (50.3 kWh)</option>
+                            <option value="80">Hyundai Ioniq 5 (72.6 kWh)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="chargeNeeded">Charge Needed (%)</label>
+                        <input type="number" id="chargeNeeded" min="1" max="100" value="40">
+                    </div>
+                    <button class="btn-primary" onclick="calculateCharge()">Calculate</button>
+                </div>
+                <div class="calc-results">
+                    <div class="result-item">
+                        <div class="result-value" id="estTime">45 min</div>
+                        <div style="color: var(--text-muted)">Est. Time</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value" id="estCost">₹ 145.20</div>
+                        <div style="color: var(--text-muted)">Total Cost (₹15/kWh)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- EV Buddy Chatbot -->
+    <button class="chatbot-btn" id="chatbotToggle" title="Ask EV Buddy">💬</button>
+
+    <div class="chatbot-panel" id="chatbotPanel">
+        <div class="chatbot-header">
+            <div class="chatbot-avatar">⚡</div>
+            <div class="chatbot-header-info">
+                <h4>EV Buddy</h4>
+                <span>● Online</span>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatMessages"></div>
+        <div class="chatbot-suggestions" id="chatSuggestions"></div>
+        <div class="chatbot-input-row">
+            <input class="chatbot-input" id="chatInput" type="text" placeholder="Ask anything about EV charging..." />
+            <button class="chatbot-send" id="chatSend">➤</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>EV CONNECT &copy; 2026. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="terms.html">Terms</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
+        </p>
+    </footer>
+
+    <script>
+        // Simple calculator (page-specific, stays inline)
+        function calculateCharge() {
+            const batteryCap    = parseFloat(document.getElementById('carModel').value);
+            const chargePercent = parseFloat(document.getElementById('chargeNeeded').value);
+            const kwhNeeded     = batteryCap * (chargePercent / 100);
+            const rate          = 15; // ₹15 per kWh
+            const cost          = kwhNeeded * rate;
+            const timeInMins    = (kwhNeeded / 50) * 60; // 50kW fast charger
+
+            document.getElementById('estCost').textContent = `₹ ${cost.toFixed(2)}`;
+            document.getElementById('estTime').textContent = `${Math.round(timeInMins)} min`;
+        }
+
+        // EV Buddy Chatbot
+        const chatbotToggle  = document.getElementById('chatbotToggle');
+        const chatbotPanel   = document.getElementById('chatbotPanel');
+        const chatMessages   = document.getElementById('chatMessages');
+        const chatSuggestions = document.getElementById('chatSuggestions');
+        const chatInput      = document.getElementById('chatInput');
+        const chatSend       = document.getElementById('chatSend');
+
+        let chatOpen = false;
+
+        const suggestions = ['How to book?', 'Pricing?', 'Where are stations?', 'OTP help', 'Charging time?'];
+
+        const qa = [
+            { k: ['book', 'booking', 'slot', 'reserve'],        a: '📅 To book a slot, go to <a href="map.html" style="color:var(--accent-neon)">Find Stations</a>, pick a station on the map, select a time slot, and confirm your payment!' },
+            { k: ['price', 'cost', 'rate', 'fee', 'pricing'],   a: '💰 EV CONNECT charges ₹14.5 – ₹18 per kWh depending on the station.' },
+            { k: ['station', 'location', 'where', 'find'],      a: '🗺️ Visit <a href="map.html" style="color:var(--accent-neon)">Find Stations</a> to see all locations on an interactive map.' },
+            { k: ['otp', 'one time', 'password', 'code'],       a: '🔐 Your OTP is generated after payment. Show it to the station attendant to start charging!' },
+            { k: ['time', 'how long', 'duration', 'fast'],      a: '⚡ A 50kW fast charger can top up 40kWh in about 45-50 minutes!' },
+            { k: ['login', 'register', 'signup', 'account'],    a: '👤 Create your account on our <a href="register.html" style="color:var(--accent-neon)">Register</a> page. It only takes a minute!' },
+            { k: ['history', 'past booking', 'my booking'],     a: '📋 View all your bookings on the <a href="history.html" style="color:var(--accent-neon)">Bookings</a> page after logging in.' },
+            { k: ['cancel', 'refund'],                          a: '❌ For cancellations or refunds, please contact our support team.' },
+            { k: ['hello', 'hi', 'hey'],                        a: '👋 Hello! I\'m EV Buddy, your smart charging assistant. Ask me anything!' },
+            { k: ['thank', 'thanks', 'great'],                  a: '😊 Happy to help! Feel free to ask anything else.' },
+            { k: ['help'],                                       a: '💡 I can help with: bookings, pricing, station locations, OTP, charging time. Just ask!' },
+        ];
+
+        function getBotReply(msg) {
+            const lower = msg.toLowerCase();
+            for (const item of qa) {
+                if (item.k.some(kw => lower.includes(kw))) return item.a;
+            }
+            return '🤔 I\'m not sure about that. Try asking: "<em>How to book?</em>", "<em>Pricing?</em>", or "<em>Where are stations?</em>".';
+        }
+
+        function addMessage(text, who) {
+            const div     = document.createElement('div');
+            div.className = `chat-msg ${who}`;
+            div.innerHTML = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage(text) {
+            if (!text.trim()) return;
+            addMessage(text, 'user');
+            chatInput.value = '';
+            setTimeout(() => addMessage(getBotReply(text), 'bot'), 500);
+        }
+
+        function renderSuggestions() {
+            chatSuggestions.innerHTML = '';
+            suggestions.forEach(s => {
+                const chip   = document.createElement('button');
+                chip.className = 'suggestion-chip';
+                chip.textContent = s;
+                chip.onclick = () => sendMessage(s);
+                chatSuggestions.appendChild(chip);
+            });
+        }
+
+        chatbotToggle.addEventListener('click', () => {
+            chatOpen = !chatOpen;
+            chatbotPanel.classList.toggle('open', chatOpen);
+            chatbotToggle.textContent = chatOpen ? '✕' : '💬';
+            if (chatOpen && chatMessages.childElementCount === 0) {
+                addMessage('👋 Hi! I\'m <strong>EV Buddy</strong>. How can I help you today?', 'bot');
+                renderSuggestions();
+            }
+        });
+
+        chatSend.addEventListener('click', () => sendMessage(chatInput.value));
+        chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(chatInput.value); });
+    </script>
+
+    <!-- Core modules (order matters) -->
+    <script src="../js/core/data.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="../js/core/utils.js"></script>
+    <script src="../js/modules/auth.js"></script>
+    <script src="../js/modules/map.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+
+</html>

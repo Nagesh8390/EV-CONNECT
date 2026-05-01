@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History - EV CONNECT</title>
+    <meta name="description" content="View and manage your EV charging slot bookings on EV CONNECT.">
+    <link rel="icon" type="image/png" href="../logo.png">
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>CONNECT</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="map.html">Find Stations</a></li>
+            <li><a href="history.html" class="active">Bookings</a></li>
+            <li><a href="login.html">Account</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="btn-login" style="color: var(--text-light); text-decoration: none; margin-right: 1.5rem; font-weight: 500;">Login</a>
+            <a href="register.html" class="btn-signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <h2>Your Bookings</h2>
+            <a href="map.html" class="btn-primary" style="text-decoration:none;">New Booking</a>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">Upcoming</div>
+            <div class="tab">Past History</div>
+        </div>
+
+        <!-- Dynamic booking cards are injected here by history.js -->
+        <div class="booking-list" id="bookingListContainer">
+            <p style="text-align:center; color: var(--text-muted); margin-top: 2rem;">Loading your bookings...</p>
+        </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 450px;">
+            <h3 style="margin-bottom: 1.5rem;">Reschedule Booking</h3>
+            <input type="hidden" id="rescheduleBookingId">
+            <input type="hidden" id="rescheduleStationId">
+            
+            <div class="form-control" style="margin-bottom: 1.5rem;">
+                <label for="rescheduleDate">New Date</label>
+                <input type="date" id="rescheduleDate" style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:8px; color:white;">
+            </div>
+
+            <div class="form-control" style="margin-bottom: 2rem;">
+                <label>Available Slots</label>
+                <div class="slots-grid" id="rescheduleSlotsContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.5rem;">
+                    <!-- Slots loaded here -->
+                </div>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <button class="btn-primary" id="btnConfirmReschedule" style="flex:1;">Save Changes</button>
+                <button class="btn-signup" onclick="closeRescheduleModal()" style="flex:1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core modules -->
+    <script src="../js/core/data.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="../js/core/utils.js"></script>
+    <script src="../js/modules/auth.js"></script>
+    <script src="../js/modules/history.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

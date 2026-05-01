@@ -1,0 +1,239 @@
+/* =====================================================
+   responsive.css — Media queries for mobile & tablet
+   ===================================================== */
+
+/* --- Mobile (up to 768px) --- */
+@media screen and (max-width: 768px) {
+    /* Base */
+    body {
+        font-size: 14px;
+    }
+
+    /* Navbar */
+    .navbar {
+        position: sticky !important; /* Change from fixed to sticky on mobile */
+        top: 0;
+        padding: 1rem;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        height: auto;
+        width: 100%;
+        border-radius: 0; /* Full width on mobile */
+    }
+
+    .logo {
+        font-size: 1.4rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center; /* Center links on mobile */
+        gap: 1rem;
+        font-size: 0.85rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 0.5rem 0;
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .nav-auth {
+        width: 100%;
+        justify-content: center;
+        gap: 1rem;
+        padding-top: 0.25rem;
+    }
+
+    /* Remove fixed spacing hacks since sticky handles it naturally */
+    .auth-container, .map-layout, .admin-layout, .dashboard-container {
+        margin-top: 0 !important;
+        padding-top: 2rem !important;
+    }
+
+    /* Footer */
+    footer {
+        padding: 2rem 1rem !important;
+    }
+
+    /* Dashboard & History */
+    .dashboard-container {
+        padding: 120px 1.5rem 2rem !important;
+    }
+
+    .booking-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .booking-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .booking-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    #rescheduleSlotsContainer {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Map Page */
+    .map-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .map-container {
+        height: 400px;
+        flex: none;
+    }
+
+    .booking-panel {
+        min-width: 100% !important;
+        border-left: none;
+        border-top: 1px solid var(--glass-border);
+    }
+
+    /* Admin Page */
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100% !important;
+        height: auto !important;
+        position: static !important;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+        padding: 1rem;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .nav-item {
+        width: auto !important;
+        white-space: nowrap;
+    }
+
+    .admin-main {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 1.5rem !important;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .stats-grid, .stat-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .two-col {
+        grid-template-columns: 1fr !important;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    /* Form Rows */
+    .form-row {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    /* Modals */
+    .modal-box {
+        width: calc(100% - 40px) !important;
+        margin: 20px;
+        padding: 1.5rem !important;
+    }
+
+    /* Hero & Sections */
+    .intro-title {
+        font-size: 2.5rem !important;
+    }
+
+    .btn-signup {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Hero & Sections */
+    .intro-title {
+        font-size: 2.5rem !important;
+    }
+
+    .intro-section {
+        padding: 4rem 1.5rem !important;
+    }
+
+    .section {
+        padding: 3rem 1.5rem !important;
+    }
+
+    .section-title {
+        font-size: 2rem !important;
+    }
+
+    /* Grid Layouts */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .calculator-container {
+        grid-template-columns: 1fr !important;
+        padding: 1.5rem !important;
+    }
+
+    /* Auth Pages */
+    .auth-box {
+        padding: 2rem 1.5rem !important;
+        margin: 0 1rem;
+    }
+
+    /* Chatbot */
+    .chatbot-panel {
+        width: calc(100% - 40px) !important;
+        right: 20px !important;
+        bottom: 90px !important;
+    }
+}
+
+/* --- Tablet (up to 1024px) --- */
+@media screen and (max-width: 1024px) {
+    .navbar {
+        padding: 1rem 2rem;
+    }
+
+    .intro-title {
+        font-size: 3.5rem;
+    }
+
+    .section {
+        padding: 4rem 2rem;
+    }
+}

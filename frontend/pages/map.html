@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Stations - EV CONNECT</title>
+    <meta name="description" content="Locate EV charging stations near you and book your slot in seconds.">
+    <link rel="icon" type="image/png" href="../logo.png">
+    <link rel="stylesheet" href="../css/main.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+</head>
+
+<body>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>CONNECT</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="map.html" class="active">Find Stations</a></li>
+            <li><a href="history.html">Bookings</a></li>
+            <li><a href="admin.html">Admin Portal</a></li>
+            <li><a href="login.html">Account</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="btn-login" id="navUserDisplay">Login</a>
+        </div>
+    </nav>
+
+    <div class="map-layout">
+        <!-- Left: Leaflet Map -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Right: Booking Panel -->
+        <div class="booking-panel">
+            <h2 class="panel-header">Book a Charging Slot</h2>
+
+            <div class="booking-form" id="bookingForm">
+                <div class="form-control">
+                    <label for="stationSelect">Selected Station</label>
+                    <select id="stationSelect" disabled>
+                        <option value="">Select a station from map</option>
+                    </select>
+                </div>
+
+                <!-- Directions button (hidden until station selected) -->
+                <button type="button" id="btnGetDirections" class="btn-signup hidden"
+                        style="width: 100%; border-style: dashed; padding: 0.5rem;">
+                    🗺️ Open in Google Maps
+                </button>
+
+                <div class="form-control">
+                    <label for="bookingDate">Date</label>
+                    <input type="date" id="bookingDate">
+                </div>
+
+                <div class="form-control">
+                    <label>Time Slot</label>
+                    <div class="slots-grid" id="slotsContainer">
+                        <p class="text-muted" style="grid-column: 1 / -1; text-align: center; padding: 1rem 0;">
+                            Please select a station and date to view slots.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label for="carModelSelect">EV Model</label>
+                    <select id="carModelSelect">
+                        <option value="40">Tata Nexon EV (40.5 kWh)</option>
+                        <option value="30">Tata Tiago EV (24 kWh)</option>
+                        <option value="60">MG ZS EV (50.3 kWh)</option>
+                        <option value="80">Hyundai Ioniq 5 (72.6 kWh)</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label for="chargeTarget">Charge Needed (%)</label>
+                    <input type="number" id="chargeTarget" min="1" max="100" value="80">
+                </div>
+
+                <div class="price-total">
+                    <p class="text-muted">Estimated Price</p>
+                    <h3 id="priceDisplay">₹ 0.00</h3>
+                    <p style="font-size:0.8rem; color:var(--text-muted)">Based on ₹15/kWh rate</p>
+                </div>
+
+                <button class="btn-primary" id="btnProceedToPay" style="width: 100%; margin-top: 1rem;">
+                    Proceed to Pay
+                </button>
+            </div>
+
+            <!-- Payment Simulator Modal -->
+            <div id="paymentModal" class="modal hidden">
+                <div class="modal-content glass-panel" style="overflow: hidden; position: relative; min-height: 350px; display: flex; align-items: center; justify-content: center;">
+                    <!-- Step 1: Confirm Payment -->
+                    <div id="payStep1" style="width: 100%;">
+                        <h3>Secure Payment Gateway</h3>
+                        <p class="text-muted" style="margin-bottom: 1.5rem;">
+                            Amount to Pay: <span id="payAmountDisplay" style="color:var(--accent-neon); font-weight:bold; font-size: 1.2rem;">₹ 0.00</span>
+                        </p>
+                        
+                        <div style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--glass-border); text-align: left;">
+                            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.5rem;">Payment Method</p>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+                                <div id="tabCardBtn" style="cursor: pointer; flex: 1; min-width: 80px; text-align: center; padding: 0.5rem; background: rgba(57, 255, 20, 0.1); border: 1px solid var(--accent-neon); border-radius: 6px; color: var(--accent-neon); font-size: 0.9rem; font-weight: 500;">Card</div>
+                                <div id="tabUpiBtn" style="cursor: pointer; flex: 1; min-width: 80px; text-align: center; padding: 0.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 400;">UPI</div>
+                                <div id="tabStationBtn" style="cursor: pointer; flex: 1.5; min-width: 120px; text-align: center; padding: 0.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 400;">Pay On Station</div>
+                            </div>
+                            <input type="text" id="demoPaymentInput" value="4111 1111 1111 1111" disabled style="width: 100%; padding: 0.75rem; background: var(--bg-darker); border: 1px solid var(--glass-border); border-radius: 6px; color: white; letter-spacing: 2px; text-align: center;">
+                        </div>
+
+                        <button class="btn-primary" id="btnConfirmPay" style="width: 100%;">Confirm Booking</button>
+                        <button class="btn-signup" id="btnCancelPay" style="width: 100%; margin-top: 1rem;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success / OTP Modal -->
+            <div id="successModal" class="modal hidden">
+                <div class="modal-content glass-panel">
+                    <div class="success-icon">✓</div>
+                    <h3 id="successTitle">Booking Successful!</h3>
+                    <p class="text-muted" style="margin-bottom: 1rem;">
+                        Transaction ID: <span id="txIdDisplay">EV123456</span>
+                    </p>
+                    <p>Your Booking OTP:</p>
+                    <div class="otp-display" id="otpDisplay">843291</div>
+                    <p class="text-muted" style="font-size:0.85rem">Valid for 24 hours. Show this at the charging station.</p>
+                    <a href="index.html" class="btn-primary"
+                        style="display:inline-block; margin-top: 2rem; width:100%; text-decoration:none;">Done</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Required Modal -->
+    <div id="loginRequiredModal" class="login-required-modal hidden">
+        <div class="login-required-box">
+            <div class="login-required-icon">🔒</div>
+            <h3>Login Required</h3>
+            <p id="loginRequiredMsg">You need to be logged in to select a charging station and make a booking.</p>
+            <a href="login.html" class="btn-go-login">Login / Register</a>
+            <button class="btn-dismiss" id="btnDismissLoginModal">Maybe Later</button>
+        </div>
+    </div>
+
+    <!-- Page-level auth guard — runs before any external JS -->
+    <script>
+        (function () {
+            var user = null;
+            try { user = JSON.parse(localStorage.getItem('evUser')); } catch (e) {}
+            if (!user || !user.id) {
+                sessionStorage.setItem('loginRedirect', 'map.html');
+                window.location.replace('login.html');
+            }
+        })();
+    </script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <!-- Core modules -->
+    <script src="../js/core/data.js"></script>
+    <script src="../js/core/api.js"></script>
+    <script src="../js/core/utils.js"></script>
+    <script src="../js/modules/auth.js"></script>
+    <script src="../js/modules/map.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Connect — Booking Confirmation</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f0f4f8; font-family: Arial, sans-serif; -webkit-text-size-adjust:100%;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f4f8; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+
+        <!-- Email Card -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background:#ffffff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.09); overflow:hidden;">
+
+          <!-- HEADER -->
+          <tr>
+            <td align="center" style="background: linear-gradient(135deg, #0d47a1 0%, #00796b 100%); padding: 36px 32px 28px;">
+              <div style="font-size:36px; margin-bottom:8px;">⚡</div>
+              <h1 style="margin:0; color:#ffffff; font-size:28px; font-weight:800; letter-spacing:1px;">
+                EV <span style="color:#69f0ae;">Connect</span>
+              </h1>
+              <p style="margin:8px 0 0; color:rgba(255,255,255,0.75); font-size:14px; letter-spacing:0.5px;">
+                Smart EV Charging Network
+              </p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:36px 40px 0;">
+
+              <!-- Greeting -->
+              <p style="margin:0 0 8px; font-size:17px; color:#37474f;">Hi <strong style="color:#0d47a1;">{User Name}</strong>,</p>
+              <p style="margin:0 0 28px; font-size:15px; color:#607d8b; line-height:1.6;">
+                Your booking is confirmed! 🎉 Here are your charging session details below.
+              </p>
+
+              <!-- OTP Section -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg, #e8f5e9, #e3f2fd); border-radius:12px; border:1.5px solid #81c784; margin-bottom:28px;">
+                <tr>
+                  <td style="padding:28px 32px;" align="center">
+                    <p style="margin:0 0 4px; font-size:13px; font-weight:700; color:#00796b; text-transform:uppercase; letter-spacing:1.5px;">Your OTP</p>
+                    <p style="margin:12px 0; font-size:52px; font-weight:900; color:#0d47a1; letter-spacing:14px; line-height:1;">
+                      {OTP}
+                    </p>
+                    <p style="margin:0 0 10px; font-size:13px; color:#455a64;">
+                      ⏱ OTP valid for <strong>5 minutes</strong>
+                    </p>
+                    <p style="margin:0 0 14px; font-size:13px; color:#546e7a; line-height:1.5;">
+                      Enter this OTP at the charging station to start your charging session.
+                    </p>
+                    <div style="background:#fff3e0; border:1px solid #ffb74d; border-radius:8px; padding:10px 18px; display:inline-block;">
+                      <p style="margin:0; font-size:13px; color:#e65100; font-weight:700;">
+                        ⚠️ Do not share this OTP with anyone
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Payment Status -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9fafb; border-radius:12px; border:1px solid #e0e0e0; margin-bottom:28px;">
+                <tr>
+                  <td style="padding:22px 28px;">
+                    <p style="margin:0 0 12px; font-size:13px; font-weight:700; color:#607d8b; text-transform:uppercase; letter-spacing:1.2px;">Payment Status</p>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td>
+                          <span style="display:inline-block; background:#e8f5e9; color:#2e7d32; font-weight:700; font-size:14px; padding:6px 16px; border-radius:50px; border:1px solid #a5d6a7;">
+                            ✅ Payment Successful
+                          </span>
+                        </td>
+                        <td align="right">
+                          <span style="font-size:26px; font-weight:900; color:#0d47a1;">₹{amount}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Transaction Summary -->
+              <p style="margin:0 0 12px; font-size:13px; font-weight:700; color:#607d8b; text-transform:uppercase; letter-spacing:1.2px;">Transaction Summary</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-radius:12px; overflow:hidden; border:1px solid #e0e0e0; margin-bottom:36px;">
+                <tr style="background:linear-gradient(90deg, #0d47a1, #00796b);">
+                  <th style="padding:12px 16px; color:#ffffff; font-size:12px; font-weight:700; text-align:left; text-transform:uppercase; letter-spacing:0.8px; border:none;">Date</th>
+                  <th style="padding:12px 16px; color:#ffffff; font-size:12px; font-weight:700; text-align:left; text-transform:uppercase; letter-spacing:0.8px; border:none;">Station</th>
+                  <th style="padding:12px 16px; color:#ffffff; font-size:12px; font-weight:700; text-align:center; text-transform:uppercase; letter-spacing:0.8px; border:none;">Energy (kWh)</th>
+                  <th style="padding:12px 16px; color:#ffffff; font-size:12px; font-weight:700; text-align:right; text-transform:uppercase; letter-spacing:0.8px; border:none;">Amount</th>
+                </tr>
+                <tr style="background:#ffffff;">
+                  <td style="padding:14px 16px; font-size:14px; color:#37474f; border-bottom:1px solid #f0f0f0;">{date}</td>
+                  <td style="padding:14px 16px; font-size:14px; color:#37474f; border-bottom:1px solid #f0f0f0;">{station}</td>
+                  <td style="padding:14px 16px; font-size:14px; color:#37474f; border-bottom:1px solid #f0f0f0; text-align:center;">{kwh} kWh</td>
+                  <td style="padding:14px 16px; font-size:14px; font-weight:700; color:#0d47a1; border-bottom:1px solid #f0f0f0; text-align:right;">₹{amount}</td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:#f5f7fa; border-top:1px solid #e8ecef; padding:28px 40px;" align="center">
+              <p style="margin:0 0 6px; font-size:16px; color:#37474f; font-weight:600;">
+                Thank you for using EV Connect 🚗⚡
+              </p>
+              <p style="margin:0; font-size:13px; color:#90a4ae; line-height:1.6;">
+                Powering a greener tomorrow, one charge at a time.<br>
+                For support, contact <a href="mailto:support@evconnect.in" style="color:#0d47a1; text-decoration:none;">support@evconnect.in</a>
+              </p>
+              <p style="margin:16px 0 0; font-size:11px; color:#b0bec5;">
+                &copy; 2026 EV Connect. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Email Card -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- /Wrapper -->
+
+</body>
+</html>
