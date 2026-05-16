@@ -10,7 +10,7 @@
  *  - User management (list, block/delete)
  */
 
-const API = 'http://localhost:8080/api';
+const API = API_BASE_URL;
 let allStations = [];
 
 document.addEventListener('DOMContentLoaded', () => {
