@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - EV CONNECT</title>
+    <meta name="description" content="EV CONNECT Admin Portal — manage stations, slots, bookings and users.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>ADMIN</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">← Back to Site</a></li>
+        </ul>
+        <div class="nav-auth" id="adminNavAuth"></div>
+    </nav>
+
+    <!-- Login Gate (shown if not admin) -->
+    <div id="loginGate" style="display:none;">
+        <div class="glass-panel" style="padding: 3rem; text-align: center; max-width: 460px;">
+            <h2 style="margin-bottom:0.75rem;">🔒 Admin Access Required</h2>
+            <p style="color:var(--text-muted); margin-bottom:2rem;">You must be logged in to access the Admin Portal.</p>
+            <a href="login.html" class="btn-primary" style="text-decoration:none; display:inline-block;">Go to Login</a>
+        </div>
+    </div>
+
+    <!-- Main Admin UI (shown only to ADMIN role) -->
+    <div class="admin-layout" id="adminUI" style="display:none;">
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">⚡ Admin Portal</div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="switchTab('dashboard')"><span class="icon">📊</span> Dashboard</button>
+                <button class="nav-item" onclick="switchTab('stations')"><span class="icon">🏗️</span> Stations</button>
+                <button class="nav-item" onclick="switchTab('slots')"><span class="icon">⚡</span> Slots</button>
+                <button class="nav-item" onclick="switchTab('bookings')"><span class="icon">📋</span> Bookings</button>
+                <button class="nav-item" onclick="switchTab('users')"><span class="icon">👥</span> Users</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="admin-main">
+            <div id="globalAlert" class="alert"></div>
+
+            <!-- DASHBOARD -->
+            <div id="tab-dashboard" class="tab-panel active">
+                <div class="page-header">
+                    <h2>Admin <span>Dashboard</span></h2>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card"><div class="stat-icon">🏗️</div><div class="stat-value" id="statStations">–</div><div class="stat-label">Total Stations</div></div>
+                    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="statBookings">–</div><div class="stat-label">Total Bookings</div></div>
+                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statUsers">–</div><div class="stat-label">Total Users</div></div>
+                    <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="statActiveSlots">–</div><div class="stat-label">Available Slots</div></div>
+                </div>
+                <div class="glass-panel admin-panel">
+                    <h3 style="margin-bottom:1rem;">Recent Bookings</h3>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="dashRecentTable">
+                            <thead><tr><th>#</th><th>User</th><th>Station</th><th>OTP</th><th>Date</th></tr></thead>
+                            <tbody id="dashRecentBody"><tr><td colspan="5" style="color:var(--text-muted)">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATIONS -->
+            <div id="tab-stations" class="tab-panel">
+                <div class="page-header"><h2>Station <span>Management</span></h2></div>
+                <div class="two-col">
+                    <div class="glass-panel admin-panel">
+                        <h3 style="margin-bottom:1.25rem; font-size:1rem;">Add New Station</h3>
+                        <form class="admin-form" id="addStationForm">
+                            <div class="form-group"><label>Station Name</label><input id="sName" placeholder="e.g. Pune Central EV Hub" required></div>
+                            <div class="form-group form-row">
+                                <div><label>Latitude</label><input type="number" step="any" id="sLat" placeholder="18.5204" required></div>
+                                <div><label>Longitude</label><input type="number" step="any" id="sLng" placeholder="73.8567" required></div>
+                            </div>
+                            <div class="form-group"><label>Address / City</label><input id="sAddr" placeholder="Pune, Maharashtra" required></div>
+                            <div class="form-group form-row">
+                                <div><label>Price (₹/kWh)</label><input type="number" step="0.1" id="sPrice" value="15" required></div>
+                                <div><label>Total Slots</label><input type="number" id="sSlots" value="4" required></div>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width:100%; margin-top:0.5rem;">Add Station</button>
+                        </form>
+                    </div>
+                    <div class="glass-panel admin-panel">
+                        <h3 style="margin-bottom:1.25rem; font-size:1rem;">All Stations</h3>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead><tr><th>ID</th><th>Name</th><th>City</th><th>₹/kWh</th><th>Slots</th><th>Actions</th></tr></thead>
+                                <tbody id="stationTableBody"><tr><td colspan="6" style="color:var(--text-muted)">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLOTS -->
+            <div id="tab-slots" class="tab-panel">
+                <div class="page-header"><h2>Slot <span>Management</span></h2></div>
+                <div class="two-col">
+                    <div class="glass-panel admin-panel">
+                        <h3 style="margin-bottom:1.25rem; font-size:1rem;">Add Slot to Station</h3>
+                        <form class="admin-form" id="addSlotForm">
+                            <div class="form-group">
+                                <label>Station</label>
+                                <select id="slotStationId"><option value="">Select a station...</option></select>
+                            </div>
+                            <div class="form-group"><label>Slot Time Label</label><input id="slotTime" placeholder="e.g. 09:00-10:00"></div>
+                            <div class="form-group">
+                                <label>Initial Status</label>
+                                <select id="slotStatus"><option value="AVAILABLE">AVAILABLE</option><option value="BOOKED">BOOKED</option></select>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width:100%; margin-top:0.5rem;">Add Slot</button>
+                        </form>
+                    </div>
+                    <div class="glass-panel admin-panel">
+                        <h3 style="margin-bottom:1.25rem; font-size:1rem;">Slots by Station</h3>
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <select id="viewSlotStation" class="admin-form" onchange="loadSlotsForStation(this.value)"
+                                    style="width:100%; padding:0.65rem; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); color:white; font-family:inherit;">
+                                <option value="">Select station to view slots...</option>
+                            </select>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead><tr><th>ID</th><th>Time</th><th>Status</th><th>Change Status</th><th>Delete</th></tr></thead>
+                                <tbody id="slotTableBody"><tr><td colspan="5" style="color:var(--text-muted)">Select a station above</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOOKINGS -->
+            <div id="tab-bookings" class="tab-panel">
+                <div class="page-header"><h2>Booking <span>Management</span></h2></div>
+                <div class="glass-panel admin-panel">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>ID</th><th>User</th><th>Station</th><th>Slot</th><th>OTP</th><th>Date</th><th>Verify OTP</th><th>Status</th><th>Cancel</th></tr></thead>
+                            <tbody id="bookingTableBody"><tr><td colspan="9" style="color:var(--text-muted)">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS -->
+            <div id="tab-users" class="tab-panel">
+                <div class="page-header"><h2>User <span>Management</span></h2></div>
+                <div class="glass-panel admin-panel">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
+                            <tbody id="userTableBody"><tr><td colspan="4" style="color:var(--text-muted)">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Edit Station Modal -->
+    <div class="modal-overlay" id="editStationModal">
+        <div class="modal-box">
+            <h3>✏️ Edit Station</h3>
+            <form class="admin-form" id="editStationForm">
+                <input type="hidden" id="editStationId">
+                <div class="form-group"><label>Name</label><input id="editSName" required></div>
+                <div class="form-group form-row">
+                    <div><label>Latitude</label><input type="number" step="any" id="editSLat" required></div>
+                    <div><label>Longitude</label><input type="number" step="any" id="editSLng" required></div>
+                </div>
+                <div class="form-group"><label>Address</label><input id="editSAddr" required></div>
+                <div class="form-group form-row">
+                    <div><label>Price (₹/kWh)</label><input type="number" step="0.1" id="editSPrice" required></div>
+                    <div><label>Total Slots</label><input type="number" id="editSSlots" required></div>
+                </div>
+                <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+                    <button type="submit" class="btn-primary" style="flex:1;">Save Changes</button>
+                    <button type="button" class="btn-outline btn-sm" onclick="closeEditModal()" style="flex:1; padding:0.65rem;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Core modules -->
+    <script src="js/core/data.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/modules/auth.js"></script>
+    <script src="js/modules/admin.js"></script>
+</body>
+</html>

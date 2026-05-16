@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EV CONNECT</title>
+    <meta name="description" content="Sign in to your EV CONNECT account to manage bookings and charging sessions.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>CONNECT</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="map.html">Find Stations</a></li>
+            <li><a href="history.html">Bookings</a></li>
+            <li><a href="login.html" class="active">Account</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="register.html" class="btn-signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-box glass-panel">
+            <h2>Welcome Back</h2>
+            <p id="loginError" style="color:#ff4c4c; background:rgba(255,76,76,0.1); border:1px solid rgba(255,76,76,0.3); border-radius:8px; padding:0.75rem; margin-bottom:1rem; display:none; font-size:0.9rem;"></p>
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-control">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@example.com">
+                </div>
+                <div class="form-control">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+            <div class="auth-links">
+                Don't have an account? <a href="register.html">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login logic — page-specific, stays inline
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email    = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn      = document.querySelector('button[type="submit"]');
+            const errorEl  = document.getElementById('loginError');
+
+            btn.textContent = 'Processing...';
+            btn.disabled    = true;
+            if (errorEl) errorEl.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('evUser', JSON.stringify({
+                        id:    data.id,
+                        name:  data.name,
+                        email: data.email,
+                        role:  data.role || 'USER'
+                    }));
+
+                    const redirect = sessionStorage.getItem('loginRedirect') || 'index.html';
+                    sessionStorage.removeItem('loginRedirect');
+                    window.location.href = redirect;
+                } else {
+                    const errorMsg = await response.text();
+                    if (errorEl) {
+                        errorEl.textContent = 'Login failed: ' + errorMsg;
+                        errorEl.style.display = 'block';
+                    }
+                    btn.textContent = 'Sign In';
+                    btn.disabled    = false;
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                if (errorEl) {
+                    errorEl.textContent = 'Cannot reach server. Make sure the backend is running.';
+                    errorEl.style.display = 'block';
+                }
+                btn.textContent = 'Sign In';
+                btn.disabled    = false;
+            }
+        }
+    </script>
+
+    <!-- Core modules -->
+    <script src="js/core/data.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/modules/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

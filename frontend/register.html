@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - EV CONNECT</title>
+    <meta name="description" content="Create your EV CONNECT account to start booking EV charging slots instantly.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">⚡ EV<span>CONNECT</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="map.html">Find Stations</a></li>
+            <li><a href="history.html">Bookings</a></li>
+            <li><a href="login.html">Account</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+    </nav>
+
+    <div class="auth-container register-bg">
+        <div class="auth-box register-box glass-panel">
+            <h2>Create Account</h2>
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-control">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="John Doe">
+                </div>
+                <div class="form-control">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@example.com">
+                </div>
+                <div class="form-control">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary">Sign Up</button>
+            </form>
+            <div class="auth-links">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Register logic — page-specific, stays inline
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name     = document.getElementById('name').value;
+            const email    = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn      = document.querySelector('button[type="submit"]');
+
+            btn.textContent = 'Processing...';
+            btn.disabled    = true;
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ name, email, password, role: 'USER' })
+                });
+
+                if (response.ok) {
+                    alert('✅ Registration Successful! Please log in with your new account.');
+                    window.location.href = 'login.html';
+                } else {
+                    const errorMsg = await response.text();
+                    alert('Registration failed: ' + errorMsg);
+                    btn.textContent = 'Sign Up';
+                    btn.disabled    = false;
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                alert('❌ Could not connect to server. Please make sure the backend is running.');
+                btn.textContent = 'Sign Up';
+                btn.disabled    = false;
+            }
+        }
+    </script>
+
+    <!-- Core modules -->
+    <script src="js/core/data.js"></script>
+    <script src="js/core/api.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/modules/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
