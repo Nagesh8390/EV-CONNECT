@@ -21,6 +21,7 @@ public class PaymentService {
     private EmailService emailService;
 
     public Payment processFakePayment(Long bookingId, Double amount) {
+        System.out.println("💳 Processing payment for booking ID: " + bookingId);
         Booking booking = bookingService.getBookingById(bookingId);
 
         // Simulate payment processing
@@ -32,12 +33,7 @@ public class PaymentService {
         payment.setTransactionId("EV" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
         paymentRepository.save(payment);
-
-        // Slot status is no longer globally updated to BOOKED
-        // Date-specific availability is now checked in BookingService and frontend.
-
-        // Trigger email notification AFTER successful payment
-        emailService.sendBookingConfirmation(booking);
+        System.out.println("✅ Payment saved successfully for booking ID: " + bookingId);
 
         return payment;
     }

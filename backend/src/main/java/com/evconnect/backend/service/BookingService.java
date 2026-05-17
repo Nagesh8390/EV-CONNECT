@@ -154,9 +154,10 @@ public class BookingService {
             throw new IllegalArgumentException("Cannot reschedule a booking that is already verified/charging.");
         }
 
-        // Validate that this exact date and time slot isn't already booked
-        if (bookingRepository.existsByStationIdAndBookingDateAndTimeSlot(booking.getStation().getId(), newDate, newTimeSlot)) {
-            System.out.println("⚠️ Slot already booked for this date!");
+        // Validate that this exact date and time slot isn't already booked (excluding ourself!)
+        if (bookingRepository.existsByStationIdAndBookingDateAndTimeSlotExcludingId(
+                booking.getStation().getId(), newDate, newTimeSlot, id)) {
+            System.out.println("⚠️ Slot already booked for this date (by another booking)!");
             throw new IllegalArgumentException("The selected slot is already booked for this date!");
         }
 
