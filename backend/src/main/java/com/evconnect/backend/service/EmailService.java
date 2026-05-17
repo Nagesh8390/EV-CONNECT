@@ -25,9 +25,13 @@ public class EmailService {
      * Sends a booking confirmation email with OTP to the user.
      * Runs asynchronously so it never blocks the booking API response.
      */
-    @Async
     public void sendBookingConfirmation(Booking booking) {
-        if (booking.getUser() == null || booking.getUser().getEmail() == null) return;
+        System.out.println("📧 Starting email send process...");
+        
+        if (booking.getUser() == null || booking.getUser().getEmail() == null) {
+            System.out.println("⚠️ No user or user email found, skipping email.");
+            return;
+        }
 
         try {
             String to      = booking.getUser().getEmail();
@@ -39,6 +43,8 @@ public class EmailService {
                     ? booking.getBookingDate() 
                     : (booking.getCreatedAt() != null ? booking.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")) : "–");
 
+            System.out.println("📧 Preparing email to: " + to);
+
             String subject = "⚡ EV Connect — Your Booking OTP & Confirmation";
             String html    = buildEmailHtml(name, otp, station, slotTime, date);
 
@@ -49,12 +55,13 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(html, true); // true = isHtml
 
+            System.out.println("📧 Sending email...");
             mailSender.send(message);
             System.out.println("✅ Booking confirmation email sent to: " + to);
 
-        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
-            // Never crash the booking flow if email fails
-            System.err.println("⚠️ Failed to send booking email: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send booking email!");
+            e.printStackTrace();
         }
     }
 

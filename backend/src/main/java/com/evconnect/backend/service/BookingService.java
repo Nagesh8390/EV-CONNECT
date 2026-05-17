@@ -112,27 +112,35 @@ public class BookingService {
     }
 
     public void cancelBooking(Long id) {
+        System.out.println("🗑️ Cancelling booking ID: " + id);
         Booking booking = getBookingById(id);
+        System.out.println("✅ Found booking: " + booking.getId() + " for station: " + booking.getStation().getName());
         // Free up the slot
         Slot slot = booking.getSlot();
         if (slot != null) {
+            System.out.println("✅ Freeing up slot: " + slot.getSlotTime());
             slot.setStatus("AVAILABLE");
             slotRepository.save(slot);
         }
         bookingRepository.deleteById(id);
+        System.out.println("✅ Booking ID " + id + " cancelled successfully.");
     }
 
     public Booking updateBookingSlot(Long id, String newDate, String newTimeSlot) {
+        System.out.println("🔄 Rescheduling booking ID: " + id + " to " + newDate + " " + newTimeSlot);
         Booking booking = getBookingById(id);
+        System.out.println("✅ Found booking: " + booking.getId());
         
         // Only allow update if not verified yet
         String status = getPaymentStatus(id);
+        System.out.println("ℹ️ Current payment status: " + status);
         if ("SUCCESS".equals(status)) {
             throw new IllegalArgumentException("Cannot reschedule a booking that is already verified/charging.");
         }
 
         // Validate that this exact date and time slot isn't already booked
         if (bookingRepository.existsByStationIdAndBookingDateAndTimeSlot(booking.getStation().getId(), newDate, newTimeSlot)) {
+            System.out.println("⚠️ Slot already booked for this date!");
             throw new IllegalArgumentException("The selected slot is already booked for this date!");
         }
 
@@ -157,7 +165,9 @@ public class BookingService {
         booking.setOtpExpiry(LocalDateTime.now().plusHours(24));
         Booking updatedBooking = bookingRepository.save(booking);
         
+        System.out.println("🔄 Booking rescheduled, sending email...");
         emailService.sendBookingConfirmation(updatedBooking);
+        System.out.println("✅ Booking rescheduled successfully.");
         
         return updatedBooking;
     }
