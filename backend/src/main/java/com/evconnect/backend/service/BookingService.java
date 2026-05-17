@@ -38,14 +38,17 @@ public class BookingService {
     private EmailService emailService;
 
     public synchronized Booking bookSlot(Long userId, Long stationId, Long slotId, String slotTime, String bookingDate) {
+        System.out.println("🚀 Starting booking for user ID: " + userId);
         // 🔒 Auth guard — userId must be present and must exist in the database
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("Authentication required: please login before making a booking.");
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Authentication required: user not found. Please login again."));
+        System.out.println("✅ Found user: " + user.getName() + " (" + user.getEmail() + ")");
         Station station = stationService.getStationById(stationId)
                 .orElseThrow(() -> new RuntimeException("Station not found"));
+        System.out.println("✅ Found station: " + station.getName());
         Slot slot = null;
         if (slotId != null) {
             slot = slotRepository.findById(slotId).orElse(null);
@@ -77,6 +80,7 @@ public class BookingService {
 
         // Generate 6-digit OTP
         String otp = String.format("%06d", new Random().nextInt(999999));
+        System.out.println("🔐 Generated OTP: " + otp);
         
         Booking booking = new Booking();
         booking.setUser(user);
@@ -89,8 +93,12 @@ public class BookingService {
         booking.setOtpExpiry(LocalDateTime.now().plusHours(24));
 
         Booking savedBooking = bookingRepository.save(booking);
+        System.out.println("✅ Booking saved! ID: " + savedBooking.getId());
 
+        System.out.println("📧 Calling email service...");
         emailService.sendBookingConfirmation(savedBooking);
+
+        System.out.println("🚀 Booking complete!");
 
         return savedBooking;
     }
@@ -115,6 +123,14 @@ public class BookingService {
         System.out.println("🗑️ Cancelling booking ID: " + id);
         Booking booking = getBookingById(id);
         System.out.println("✅ Found booking: " + booking.getId() + " for station: " + booking.getStation().getName());
+        
+        // Delete associated payment first
+        System.out.println("🗑️ Deleting associated payment...");
+        paymentRepository.findByBookingId(id).ifPresent(payment -> {
+            paymentRepository.delete(payment);
+            System.out.println("✅ Payment deleted.");
+        });
+        
         // Free up the slot
         Slot slot = booking.getSlot();
         if (slot != null) {
