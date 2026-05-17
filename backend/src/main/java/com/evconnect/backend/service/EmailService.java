@@ -1,12 +1,10 @@
 package com.evconnect.backend.service;
 
 import com.evconnect.backend.entity.Booking;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +13,19 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key:re_123456789}")
+    private String resendApiKey;
 
-    @Value("${spring.mail.username}")
+    @Value("${resend.from.email:onboarding@resend.dev}")
     private String fromEmail;
 
     /**
      * Sends a booking confirmation email with OTP to the user.
      * Runs asynchronously so it never blocks the booking API response.
      */
+    @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
-        System.out.println("📧 Starting email send process...");
+        System.out.println("📧 Starting email send process... (async via Resend)");
         
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
@@ -48,19 +47,23 @@ public class EmailService {
             String subject = "⚡ EV Connect — Your Booking OTP & Confirmation";
             String html    = buildEmailHtml(name, otp, station, slotTime, date);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromEmail, "EV Connect");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(html, true); // true = isHtml
+            Resend resend = new Resend(resendApiKey);
 
-            System.out.println("📧 Sending email...");
-            mailSender.send(message);
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject(subject)
+                    .html(html)
+                    .build();
+
+            System.out.println("📧 Sending email via Resend...");
+            CreateEmailResponse data = resend.emails().send(params);
+
             System.out.println("✅ Booking confirmation email sent to: " + to);
+            System.out.println("📧 Resend Email ID: " + data.getId());
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send booking email!");
+            System.err.println("❌ Failed to send booking email via Resend!");
             e.printStackTrace();
         }
     }
