@@ -34,6 +34,9 @@ public class BookingService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public synchronized Booking bookSlot(Long userId, Long stationId, Long slotId, String slotTime, String bookingDate) {
         // 🔒 Auth guard — userId must be present and must exist in the database
         if (userId == null || userId <= 0) {
@@ -87,6 +90,8 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
+        emailService.sendBookingConfirmation(savedBooking);
+
         return savedBooking;
     }
 
@@ -115,6 +120,46 @@ public class BookingService {
             slotRepository.save(slot);
         }
         bookingRepository.deleteById(id);
+    }
+
+    public Booking updateBookingSlot(Long id, String newDate, String newTimeSlot) {
+        Booking booking = getBookingById(id);
+        
+        // Only allow update if not verified yet
+        String status = getPaymentStatus(id);
+        if ("SUCCESS".equals(status)) {
+            throw new IllegalArgumentException("Cannot reschedule a booking that is already verified/charging.");
+        }
+
+        // Validate that this exact date and time slot isn't already booked
+        if (bookingRepository.existsByStationIdAndBookingDateAndTimeSlot(booking.getStation().getId(), newDate, newTimeSlot)) {
+            throw new IllegalArgumentException("The selected slot is already booked for this date!");
+        }
+
+        booking.setBookingDate(newDate);
+        booking.setTimeSlot(newTimeSlot);
+        
+        // Find or create slot for the new time
+        List<Slot> slots = slotRepository.findByStationIdAndSlotTime(booking.getStation().getId(), newTimeSlot);
+        if (!slots.isEmpty()) {
+            booking.setSlot(slots.get(0));
+        } else {
+            Slot newSlot = new Slot();
+            newSlot.setStation(booking.getStation());
+            newSlot.setSlotTime(newTimeSlot);
+            newSlot.setStatus("AVAILABLE");
+            booking.setSlot(slotRepository.save(newSlot));
+        }
+
+        // Regenerate OTP and send email
+        String newOtp = String.format("%06d", new Random().nextInt(999999));
+        booking.setOtp(newOtp);
+        booking.setOtpExpiry(LocalDateTime.now().plusHours(24));
+        Booking updatedBooking = bookingRepository.save(booking);
+        
+        emailService.sendBookingConfirmation(updatedBooking);
+        
+        return updatedBooking;
     }
 
     public boolean verifyOtpAndUpdatePayment(Long bookingId, String enteredOtp) {

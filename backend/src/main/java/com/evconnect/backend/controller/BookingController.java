@@ -52,6 +52,33 @@ public class BookingController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> cancelBookingUser(@PathVariable Long id) {
+        try {
+            bookingService.cancelBooking(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/reschedule")
+    public ResponseEntity<?> rescheduleBooking(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> payload
+    ) {
+        try {
+            Booking updatedBooking = bookingService.updateBookingSlot(
+                    id,
+                    payload.get("bookingDate"),
+                    payload.get("timeSlot")
+            );
+            return ResponseEntity.ok(updatedBooking);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/admin/{id}/verify-otp")
     public ResponseEntity<?> verifyAdminOtp(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
         try {
