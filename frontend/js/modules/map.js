@@ -65,21 +65,33 @@ function initMap() {
 
     // HTML5 geolocation — move map to user's position
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            userLocation = L.latLng(lat, lng);
-            map.setView([lat, lng], 13);
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                userLocation = L.latLng(lat, lng);
+                map.setView([lat, lng], 13);
 
-            L.circleMarker([lat, lng], {
-                radius: 8,
-                fillColor: '#39ff14',
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map).bindPopup('You are here');
-        });
+                L.circleMarker([lat, lng], {
+                    radius: 8,
+                    fillColor: '#39ff14',
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map).bindPopup('You are here');
+            },
+            error => {
+                let message = 'Please enable location services to find nearby charging stations.';
+                if (error.code === error.PERMISSION_DENIED) {
+                    message = 'Location access denied. Please enable location in your browser settings to use this feature.';
+                }
+                alert(message);
+            },
+            { timeout: 10000 }
+        );
+    } else {
+        alert('Your browser does not support location services.');
     }
 }
 

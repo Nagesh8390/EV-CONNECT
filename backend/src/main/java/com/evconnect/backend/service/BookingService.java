@@ -34,6 +34,9 @@ public class BookingService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public synchronized Booking bookSlot(Long userId, Long stationId, Long slotId, String slotTime, String bookingDate) {
         // 🔒 Auth guard — userId must be present and must exist in the database
         if (userId == null || userId <= 0) {
@@ -86,6 +89,9 @@ public class BookingService {
         booking.setOtpExpiry(LocalDateTime.now().plusHours(24));
 
         Booking savedBooking = bookingRepository.save(booking);
+
+        // Send confirmation email with OTP
+        emailService.sendBookingConfirmation(savedBooking);
 
         return savedBooking;
     }
@@ -150,7 +156,17 @@ public class BookingService {
             booking.setSlot(slotRepository.save(newSlot));
         }
 
-        return bookingRepository.save(booking);
+        Booking updatedBooking = bookingRepository.save(booking);
+        
+        // Regenerate OTP and send new confirmation email
+        String newOtp = String.format("%06d", new Random().nextInt(999999));
+        updatedBooking.setOtp(newOtp);
+        updatedBooking.setOtpExpiry(LocalDateTime.now().plusHours(24));
+        updatedBooking = bookingRepository.save(updatedBooking);
+        
+        emailService.sendBookingConfirmation(updatedBooking);
+        
+        return updatedBooking;
     }
 
     public boolean verifyOtpAndUpdatePayment(Long bookingId, String enteredOtp) {
