@@ -37,29 +37,6 @@ public class BookingController {
         return bookingService.getBookingsByStationAndDate(stationId, date);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> userCancelBooking(@PathVariable Long id) {
-        try {
-            // In a real app, we'd check if the booking belongs to the logged-in user
-            bookingService.cancelBooking(id);
-            return ResponseEntity.ok(java.util.Collections.singletonMap("message", "Booking cancelled"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/{id}/reschedule")
-    public ResponseEntity<?> rescheduleBooking(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
-        try {
-            String newDate = payload.get("bookingDate");
-            String newTime = payload.get("slotTime");
-            Booking updated = bookingService.updateBookingSlot(id, newDate, newTime);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @GetMapping("/admin")
     public List<Booking> getAllBookings() {
         return bookingService.getAllBookings();

@@ -24,10 +24,6 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
 /* --- Base Body --- */
 body {
     font-family: 'Inter', sans-serif;

@@ -20,7 +20,7 @@ public class PaymentService {
     @Autowired
     private EmailService emailService;
 
-    public Payment processFakePayment(Long bookingId, Double amount, String paymentMethod) {
+    public Payment processFakePayment(Long bookingId, Double amount) {
         Booking booking = bookingService.getBookingById(bookingId);
 
         // Simulate payment processing
@@ -28,7 +28,7 @@ public class PaymentService {
         payment.setBooking(booking);
         payment.setAmount(amount);
         payment.setStatus("PENDING"); // Will become SUCCESS only after admin OTP verification
-        payment.setPaymentMethod(paymentMethod != null ? paymentMethod : "SIMULATED_CARD");
+        payment.setPaymentMethod("SIMULATED_CARD");
         payment.setTransactionId("EV" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
         paymentRepository.save(payment);

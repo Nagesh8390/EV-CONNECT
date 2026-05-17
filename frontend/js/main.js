@@ -40,17 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Always run auth check to update navbar state
     checkAuth();
 
-    // Set active nav link based on current page
-    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        const linkPath = link.getAttribute('href').split('/').pop();
-        if (linkPath === currentPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-
     // Map page — wire up login modal dismiss button
     const btnDismiss = document.getElementById('btnDismissLoginModal');
     if (btnDismiss) {

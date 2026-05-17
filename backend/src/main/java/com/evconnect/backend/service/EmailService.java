@@ -25,6 +25,7 @@ public class EmailService {
      * Sends a booking confirmation email with OTP to the user.
      * Runs asynchronously so it never blocks the booking API response.
      */
+    @Async
     public void sendBookingConfirmation(Booking booking) {
         if (booking.getUser() == null || booking.getUser().getEmail() == null) return;
 

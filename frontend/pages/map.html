@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Stations - EV CONNECT</title>
-    <meta name="description" content="Locate EV charging stations near you and book your slot in seconds.">
-    <link rel="icon" type="image/png" href="../logo.png">
+    <meta name="description" content="Find EV charging stations near you, select a time slot, and book your charge on EV CONNECT.">
     <link rel="stylesheet" href="../css/main.css">
 
     <!-- Leaflet CSS -->
@@ -107,16 +106,42 @@
                         
                         <div style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--glass-border); text-align: left;">
                             <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.5rem;">Payment Method</p>
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
-                                <div id="tabCardBtn" style="cursor: pointer; flex: 1; min-width: 80px; text-align: center; padding: 0.5rem; background: rgba(57, 255, 20, 0.1); border: 1px solid var(--accent-neon); border-radius: 6px; color: var(--accent-neon); font-size: 0.9rem; font-weight: 500;">Card</div>
-                                <div id="tabUpiBtn" style="cursor: pointer; flex: 1; min-width: 80px; text-align: center; padding: 0.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 400;">UPI</div>
-                                <div id="tabStationBtn" style="cursor: pointer; flex: 1.5; min-width: 120px; text-align: center; padding: 0.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 400;">Pay On Station</div>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem;">
+                                <div id="tabCardBtn" style="cursor: pointer; flex: 1; text-align: center; padding: 0.5rem; background: rgba(57, 255, 20, 0.1); border: 1px solid var(--accent-neon); border-radius: 6px; color: var(--accent-neon); font-size: 0.9rem; font-weight: 500;">Card</div>
+                                <div id="tabUpiBtn" style="cursor: pointer; flex: 1; text-align: center; padding: 0.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 400;">UPI</div>
                             </div>
                             <input type="text" id="demoPaymentInput" value="4111 1111 1111 1111" disabled style="width: 100%; padding: 0.75rem; background: var(--bg-darker); border: 1px solid var(--glass-border); border-radius: 6px; color: white; letter-spacing: 2px; text-align: center;">
                         </div>
 
-                        <button class="btn-primary" id="btnConfirmPay" style="width: 100%;">Confirm Booking</button>
+                        <button class="btn-primary" id="btnConfirmPay" style="width: 100%;">Pay Now Simulation</button>
                         <button class="btn-signup" id="btnCancelPay" style="width: 100%; margin-top: 1rem;">Cancel</button>
+                    </div>
+
+                    <!-- Step 2: Processing Spinner -->
+                    <div id="payStep2" class="hidden" style="width: 100%; text-align: center;">
+                        <style>
+                            .custom-spinner { width: 60px; height: 60px; border: 4px solid var(--glass-border); border-top-color: var(--accent-neon); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+                            @keyframes spin { to { transform: rotate(360deg); } }
+                        </style>
+                        <div class="custom-spinner"></div>
+                        <h3 style="color: var(--accent-neon); margin-bottom: 0.5rem;">Authenticating...</h3>
+                        <p class="text-muted" style="font-size: 0.9rem;">Connecting to banking systems.<br>Do not close this page.</p>
+                    </div>
+
+                    <!-- Step 3: Bank OTP -->
+                    <div id="payStep3" class="hidden" style="width: 100%; text-align: center;">
+                        <h3 style="margin-bottom: 0.5rem;">Bank Verification</h3>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Enter the 4-digit backend OTP sent to your phone</p>
+                        
+                        <div style="display: flex; gap: 0.8rem; justify-content: center; margin-bottom: 2rem;">
+                            <input type="text" class="bank-otp-field" maxlength="1" inputmode="numeric" style="width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--accent-neon);">
+                            <input type="text" class="bank-otp-field" maxlength="1" inputmode="numeric" style="width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--accent-neon);">
+                            <input type="text" class="bank-otp-field" maxlength="1" inputmode="numeric" style="width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--accent-neon);">
+                            <input type="text" class="bank-otp-field" maxlength="1" inputmode="numeric" style="width: 50px; height: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--accent-neon);">
+                        </div>
+                        
+                        <button class="btn-primary" id="btnVerifyBankOtp" style="width: 100%;">Verify & Complete</button>
+                        <p class="text-muted" style="font-size: 0.8rem; margin-top: 1rem; font-style: italic;">Hint: Enter any 4 digits (e.g., 1234) for demo.</p>
                     </div>
                 </div>
             </div>
@@ -125,7 +150,7 @@
             <div id="successModal" class="modal hidden">
                 <div class="modal-content glass-panel">
                     <div class="success-icon">✓</div>
-                    <h3 id="successTitle">Booking Successful!</h3>
+                    <h3>Payment Successful!</h3>
                     <p class="text-muted" style="margin-bottom: 1rem;">
                         Transaction ID: <span id="txIdDisplay">EV123456</span>
                     </p>

@@ -65,33 +65,21 @@ function initMap() {
 
     // HTML5 geolocation — move map to user's position
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                userLocation = L.latLng(lat, lng);
-                map.setView([lat, lng], 13);
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            userLocation = L.latLng(lat, lng);
+            map.setView([lat, lng], 13);
 
-                L.circleMarker([lat, lng], {
-                    radius: 8,
-                    fillColor: '#39ff14',
-                    color: '#fff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(map).bindPopup('You are here');
-            },
-            error => {
-                let message = 'Please enable location services to find nearby charging stations.';
-                if (error.code === error.PERMISSION_DENIED) {
-                    message = 'Location access denied. Please enable location in your browser settings to use this feature.';
-                }
-                alert(message);
-            },
-            { timeout: 10000 }
-        );
-    } else {
-        alert('Your browser does not support location services.');
+            L.circleMarker([lat, lng], {
+                radius: 8,
+                fillColor: '#39ff14',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map).bindPopup('You are here');
+        });
     }
 }
 
@@ -264,62 +252,37 @@ function initBookingFlow() {
     document.getElementById('chargeTarget').addEventListener('input', updatePrice);
 
     // Dummy Payment Method Tab logic
-    let selectedPaymentMethod = 'SIMULATED_CARD';
-
     if(document.getElementById('tabCardBtn')) {
-        const cardBtn = document.getElementById('tabCardBtn');
-        const upiBtn = document.getElementById('tabUpiBtn');
-        const stationBtn = document.getElementById('tabStationBtn');
-        const demoInput = document.getElementById('demoPaymentInput');
+        document.getElementById('tabCardBtn').addEventListener('click', (e) => {
+            e.target.style.background = 'rgba(57, 255, 20, 0.1)';
+            e.target.style.borderColor = 'var(--accent-neon)';
+            e.target.style.color = 'var(--accent-neon)';
+            e.target.style.fontWeight = '500';
 
-        cardBtn.addEventListener('click', () => {
-            selectedPaymentMethod = 'SIMULATED_CARD';
-            cardBtn.style.background = 'rgba(57, 255, 20, 0.1)';
-            cardBtn.style.borderColor = 'var(--accent-neon)';
-            cardBtn.style.color = 'var(--accent-neon)';
-            cardBtn.style.fontWeight = '500';
+            const upiBtn = document.getElementById('tabUpiBtn');
+            upiBtn.style.background = 'transparent';
+            upiBtn.style.borderColor = 'var(--glass-border)';
+            upiBtn.style.color = 'var(--text-muted)';
+            upiBtn.style.fontWeight = 'normal';
 
-            [upiBtn, stationBtn].forEach(btn => {
-                btn.style.background = 'transparent';
-                btn.style.borderColor = 'var(--glass-border)';
-                btn.style.color = 'var(--text-muted)';
-                btn.style.fontWeight = 'normal';
-            });
-            demoInput.style.display = 'block';
-            demoInput.value = '4111 1111 1111 1111';
+            const input = document.getElementById('demoPaymentInput');
+            input.value = '4111 1111 1111 1111';
         });
 
-        upiBtn.addEventListener('click', () => {
-            selectedPaymentMethod = 'SIMULATED_UPI';
-            upiBtn.style.background = 'rgba(57, 255, 20, 0.1)';
-            upiBtn.style.borderColor = 'var(--accent-neon)';
-            upiBtn.style.color = 'var(--accent-neon)';
-            upiBtn.style.fontWeight = '500';
+        document.getElementById('tabUpiBtn').addEventListener('click', (e) => {
+            e.target.style.background = 'rgba(57, 255, 20, 0.1)';
+            e.target.style.borderColor = 'var(--accent-neon)';
+            e.target.style.color = 'var(--accent-neon)';
+            e.target.style.fontWeight = '500';
 
-            [cardBtn, stationBtn].forEach(btn => {
-                btn.style.background = 'transparent';
-                btn.style.borderColor = 'var(--glass-border)';
-                btn.style.color = 'var(--text-muted)';
-                btn.style.fontWeight = 'normal';
-            });
-            demoInput.style.display = 'block';
-            demoInput.value = 'user@upi';
-        });
+            const cardBtn = document.getElementById('tabCardBtn');
+            cardBtn.style.background = 'transparent';
+            cardBtn.style.borderColor = 'var(--glass-border)';
+            cardBtn.style.color = 'var(--text-muted)';
+            cardBtn.style.fontWeight = 'normal';
 
-        stationBtn.addEventListener('click', () => {
-            selectedPaymentMethod = 'PAY_ON_STATION';
-            stationBtn.style.background = 'rgba(57, 255, 20, 0.1)';
-            stationBtn.style.borderColor = 'var(--accent-neon)';
-            stationBtn.style.color = 'var(--accent-neon)';
-            stationBtn.style.fontWeight = '500';
-
-            [cardBtn, upiBtn].forEach(btn => {
-                btn.style.background = 'transparent';
-                btn.style.borderColor = 'var(--glass-border)';
-                btn.style.color = 'var(--text-muted)';
-                btn.style.fontWeight = 'normal';
-            });
-            demoInput.style.display = 'none';
+            const input = document.getElementById('demoPaymentInput');
+            input.value = 'user@upi';
         });
     }
 
@@ -336,11 +299,16 @@ function initBookingFlow() {
 
         document.getElementById('payAmountDisplay').textContent = `₹ ${calculatedPrice.toFixed(2)}`;
 
-        // Reset modal state
+        // Reset animation states
         document.getElementById('payStep1').classList.remove('hidden');
+        document.getElementById('payStep2').classList.add('hidden');
+        document.getElementById('payStep3').classList.add('hidden');
+        document.querySelectorAll('.bank-otp-field').forEach(f => f.value = '');
         
         const cBtn = document.getElementById('btnConfirmPay');
-        if (cBtn) { cBtn.textContent = 'Confirm Booking'; cBtn.disabled = false; }
+        if (cBtn) { cBtn.textContent = 'Pay Now Simulation'; cBtn.disabled = false; }
+        const vBtn = document.getElementById('btnVerifyBankOtp');
+        if (vBtn) { vBtn.textContent = 'Verify & Complete'; vBtn.disabled = false; }
 
         document.getElementById('paymentModal').classList.remove('hidden');
     });
@@ -351,11 +319,11 @@ function initBookingFlow() {
     });
 
     // "Confirm Payment" button — starts the animation flow
-    document.getElementById('btnConfirmPay').addEventListener('click', async () => {
+    document.getElementById('btnConfirmPay').addEventListener('click', () => {
         const user = getCurrentUser();
         if (!user || !user.id) {
             document.getElementById('paymentModal').classList.add('hidden');
-            showLoginRequired('Your session has expired. Please login again to complete booking.');
+            showLoginRequired('Your session has expired. Please login again to complete payment.');
             return;
         }
 
@@ -363,7 +331,47 @@ function initBookingFlow() {
         btn.textContent = 'Processing...';
         btn.disabled    = true;
 
-        // Skip animation steps and directly book
+        // Step 1 -> Step 2
+        document.getElementById('payStep1').classList.add('hidden');
+        document.getElementById('payStep2').classList.remove('hidden');
+
+        // Step 2 -> Step 3
+        setTimeout(() => {
+            document.getElementById('payStep2').classList.add('hidden');
+            document.getElementById('payStep3').classList.remove('hidden');
+            
+            const otpFields = document.querySelectorAll('.bank-otp-field');
+            if (otpFields.length > 0) otpFields[0].focus();
+
+            otpFields.forEach((field, index) => {
+                field.oninput = (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if (e.target.value && index < otpFields.length - 1) {
+                        otpFields[index + 1].focus();
+                    }
+                    // Auto submit if all filled
+                    let allFilled = true;
+                    otpFields.forEach(f => { if (!f.value) allFilled = false; });
+                    if (allFilled && document.getElementById('btnVerifyBankOtp').disabled === false) {
+                        setTimeout(() => document.getElementById('btnVerifyBankOtp').click(), 300);
+                    }
+                };
+                field.onkeydown = (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        otpFields[index - 1].focus();
+                    }
+                };
+            });
+        }, 1500);
+    });
+
+    // "Verify Bank OTP" button — calls backend booking then payment
+    document.getElementById('btnVerifyBankOtp').addEventListener('click', async () => {
+        const vBtn = document.getElementById('btnVerifyBankOtp');
+        vBtn.textContent = 'Authenticating...';
+        vBtn.disabled = true;
+
+        const user = getCurrentUser();
         let txId  = 'EV' + Math.floor(Math.random() * 1000000);
         let otp   = Math.floor(100000 + Math.random() * 900000);
 
@@ -397,9 +405,8 @@ function initBookingFlow() {
 
             // ── Step 2: Process payment ───────────────────────────────────────────
             const paymentBody = {
-                bookingId:     Number(booking.id),
-                amount:        parseFloat(calculatedPrice.toFixed(2)),
-                paymentMethod: selectedPaymentMethod
+                bookingId: Number(booking.id),
+                amount:    parseFloat(calculatedPrice.toFixed(2))
             };
 
             const payRes = await fetch(`${API_BASE_URL}/payments/fakePayment`, {
@@ -411,17 +418,12 @@ function initBookingFlow() {
             if (payRes.ok) {
                 const payData = await payRes.json();
                 txId = payData.transactionId || txId;
+            } else {
+                console.warn('Payment API failed, booking was created. OTP:', otp);
             }
 
             // ── Step 3: Show success screen ───────────────────────────────────────
             document.getElementById('txIdDisplay').textContent = txId;
-            const successTitleEl = document.getElementById('successTitle');
-            if (successTitleEl) {
-                successTitleEl.textContent = selectedPaymentMethod === 'PAY_ON_STATION' 
-                    ? 'Booking Confirmed!' 
-                    : 'Payment Successful!';
-            }
-
             const otpDisplayEl = document.getElementById('otpDisplay');
             if(otpDisplayEl) {
                  otpDisplayEl.textContent = "Sent to your Email 📧";
@@ -442,8 +444,7 @@ function initBookingFlow() {
                 timeSlot:    selectedSlot.slotTime,
                 createdAt:   new Date().toISOString(),
                 otp,
-                txId,
-                paymentMethod: selectedPaymentMethod
+                txId
             });
             localStorage.setItem('evBookings', JSON.stringify(localBookings));
 

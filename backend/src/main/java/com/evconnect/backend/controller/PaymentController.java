@@ -18,11 +18,7 @@ public class PaymentController {
     @PostMapping("/fakePayment")
     public ResponseEntity<?> processPayment(@RequestBody PaymentRequest request) {
         try {
-            Payment payment = paymentService.processFakePayment(
-                request.getBookingId(), 
-                request.getAmount(),
-                request.getPaymentMethod()
-            );
+            Payment payment = paymentService.processFakePayment(request.getBookingId(), request.getAmount());
             return ResponseEntity.ok(payment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
