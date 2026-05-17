@@ -10,7 +10,7 @@
  *  - User management (list, block/delete)
  */
 
-const API = API_BASE_URL;
+const API = 'http://localhost:8080/api';
 let allStations = [];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!user) {
         // Not logged in at all
         document.getElementById('loginGate').style.display = 'flex';
-    } else if (user.role !== 'ADMIN') {
+    } else if (user.role?.toUpperCase() !== 'ADMIN') {
         // Logged in but not admin
         alert('⛔ Access Denied: You do not have admin privileges.');
         window.location.href = 'index.html';
@@ -173,12 +173,46 @@ function populateStationSelects() {
 
 document.getElementById('addStationForm').addEventListener('submit', async e => {
     e.preventDefault();
-    showAlert('Adding stations is disabled in static mode.', true);
+    const stationData = {
+        name: document.getElementById('sName').value,
+        latitude: parseFloat(document.getElementById('sLat').value),
+        longitude: parseFloat(document.getElementById('sLng').value),
+        address: document.getElementById('sAddr').value,
+        pricePerKwh: parseFloat(document.getElementById('sPrice').value),
+        totalSlots: parseInt(document.getElementById('sSlots').value)
+    };
+
+    try {
+        const res = await fetch(`${API}/stations/admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(stationData)
+        });
+        if (res.ok) {
+            showAlert('✅ Station added successfully!');
+            e.target.reset();
+            loadDashboard(); // Refresh stations
+        } else {
+            showAlert('❌ Failed to add station.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 });
 
 async function deleteStation(id) {
     if (!confirm('Delete this station? This cannot be undone.')) return;
-    showAlert('Deleting stations is disabled in static mode.', true);
+    try {
+        const res = await fetch(`${API}/stations/admin/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            showAlert('✅ Station deleted.');
+            loadDashboard();
+        } else {
+            showAlert('❌ Failed to delete station.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 }
 
 function openEditStation(id) {
@@ -200,8 +234,32 @@ function closeEditModal() {
 
 document.getElementById('editStationForm').addEventListener('submit', async e => {
     e.preventDefault();
-    showAlert('Editing stations is disabled in static mode.', true);
-    closeEditModal();
+    const id = document.getElementById('editStationId').value;
+    const stationData = {
+        name: document.getElementById('editSName').value,
+        latitude: parseFloat(document.getElementById('editSLat').value),
+        longitude: parseFloat(document.getElementById('editSLng').value),
+        address: document.getElementById('editSAddr').value,
+        pricePerKwh: parseFloat(document.getElementById('editSPrice').value),
+        totalSlots: parseInt(document.getElementById('editSSlots').value)
+    };
+
+    try {
+        const res = await fetch(`${API}/stations/admin/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(stationData)
+        });
+        if (res.ok) {
+            showAlert('✅ Station updated successfully!');
+            closeEditModal();
+            loadDashboard();
+        } else {
+            showAlert('❌ Failed to update station.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 });
 
 // ---------------------------------------------------------------------------
@@ -210,7 +268,30 @@ document.getElementById('editStationForm').addEventListener('submit', async e =>
 
 document.getElementById('addSlotForm').addEventListener('submit', async e => {
     e.preventDefault();
-    showAlert('Adding slots is disabled in static mode.', true);
+    const stationId = document.getElementById('slotStationId').value;
+    const slotData = {
+        slotTime: document.getElementById('slotTime').value,
+        status: document.getElementById('slotStatus').value
+    };
+
+    if (!stationId) return showAlert('Please select a station.', true);
+
+    try {
+        const res = await fetch(`${API}/stations/${stationId}/slots/admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(slotData)
+        });
+        if (res.ok) {
+            showAlert('✅ Slot added successfully!');
+            e.target.reset();
+            loadSlotsForStation(stationId);
+        } else {
+            showAlert('❌ Failed to add slot.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 });
 
 async function loadSlotsForStation(stationId) {
@@ -220,7 +301,8 @@ async function loadSlotsForStation(stationId) {
         return;
     }
     try {
-        const slots = window.STATIC_SLOTS || [];
+        const res = await fetch(`${API}/stations/${stationId}/slots`);
+        const slots = res.ok ? await res.json() : [];
         tbody.innerHTML = slots.length === 0
             ? `<tr><td colspan="5" style="color:var(--text-muted)">No slots for this station.</td></tr>`
             : slots.map(sl => `
@@ -245,12 +327,33 @@ async function loadSlotsForStation(stationId) {
 
 async function deleteSlot(stationId, slotId) {
     if (!confirm(`Delete slot #${slotId}? This cannot be undone.`)) return;
-    showAlert('Deleting slots is disabled in static mode.', true);
+    try {
+        const res = await fetch(`${API}/stations/${stationId}/slots/admin/${slotId}`, { method: 'DELETE' });
+        if (res.ok) {
+            showAlert('✅ Slot deleted.');
+            loadSlotsForStation(stationId);
+        } else {
+            showAlert('❌ Failed to delete slot.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 }
 
 async function changeSlotStatus(stationId, slotId, status) {
-    showAlert('Changing slot status is disabled in static mode.', true);
-    loadDashboard();
+    try {
+        const res = await fetch(`${API}/stations/${stationId}/slots/admin/${slotId}/status?status=${status}`, {
+            method: 'PUT'
+        });
+        if (res.ok) {
+            showAlert(`✅ Slot status updated to ${status}.`);
+            loadSlotsForStation(stationId);
+        } else {
+            showAlert('❌ Failed to update slot status.', true);
+        }
+    } catch {
+        showAlert('❌ Backend unreachable.', true);
+    }
 }
 
 // ---------------------------------------------------------------------------

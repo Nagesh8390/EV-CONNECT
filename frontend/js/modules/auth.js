@@ -144,6 +144,7 @@ function checkAuth() {
 // ---------------------------------------------------------------------------
 
 window.handleLogout = function () {
+    if (!confirm('Are you sure you want to log out?')) return;
     localStorage.removeItem('evUser');
     // All pages are inside pages/, so index.html is a sibling
     window.location.href = 'index.html';
