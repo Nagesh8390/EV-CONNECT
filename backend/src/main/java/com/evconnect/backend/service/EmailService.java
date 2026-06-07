@@ -1,32 +1,37 @@
 package com.evconnect.backend.service;
 
+import com.brevo.ApiClient;
+import com.brevo.ApiException;
+import com.brevo.Configuration;
+import com.brevo.auth.ApiKeyAuth;
+import com.brevo.model.SendSmtpEmail;
+import com.brevo.model.SendSmtpEmailSender;
+import com.brevo.model.SendSmtpEmailTo;
 import com.evconnect.backend.entity.Booking;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    @Value("${BREVO_API_KEY}")
+    private String brevoApiKey;
 
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
-        System.out.println("📧 Starting email send process (async via Brevo SMTP)...");
+        System.out.println("📧 Starting email send process (async via Brevo API)...");
 
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
+            return;
+        }
+
+        if (brevoApiKey == null || brevoApiKey.isEmpty()) {
+            System.out.println("⚠️ BREVO_API_KEY not set, skipping email.");
             return;
         }
 
@@ -42,20 +47,39 @@ public class EmailService {
 
             System.out.println("📧 Preparing email to: " + to);
 
-            String subject = "⚡ EV CONNECT - Your Booking OTP & Confirmation";
+            ApiClient defaultClient = Configuration.getDefaultApiClient();
+            defaultClient.setBasePath("https://api.brevo.com/v3");
+            ApiKeyAuth apiKey = (ApiKeyAuth) defaultClient.getAuthentication("api-key");
+            apiKey.setApiKey(brevoApiKey);
+
+            com.brevo.api.TransactionalEmailsApi apiInstance = new com.brevo.api.TransactionalEmailsApi(defaultClient);
+
+            SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+
+            SendSmtpEmailSender sender = new SendSmtpEmailSender();
+            sender.setName("EV CONNECT");
+            sender.setEmail("evconnect.service@gmail.com");
+            sendSmtpEmail.setSender(sender);
+
+            SendSmtpEmailTo toObj = new SendSmtpEmailTo();
+            toObj.setEmail(to);
+            toObj.setName(name);
+            sendSmtpEmail.setTo(Collections.singletonList(toObj));
+
+            sendSmtpEmail.setSubject("⚡ EV CONNECT - Your Booking OTP & Confirmation");
+
             String htmlContent = buildEmailHtml(name, otp, station, slotTime, date);
+            sendSmtpEmail.setHtmlContent(htmlContent);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromEmail, "EV CONNECT");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            System.out.println("📧 Sending email via Brevo SMTP...");
-            mailSender.send(message);
+            System.out.println("📧 Sending email via Brevo API...");
+            Object result = apiInstance.sendTransacEmail(sendSmtpEmail);
             System.out.println("✅ Booking confirmation email sent to: " + to);
+            System.out.println("📧 Brevo response: " + result);
 
+        } catch (ApiException e) {
+            System.err.println("❌ Brevo API Exception: " + e.getMessage());
+            System.err.println("❌ Response Body: " + e.getResponseBody());
+            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("❌ Failed to send booking email: " + e.getMessage());
             e.printStackTrace();
