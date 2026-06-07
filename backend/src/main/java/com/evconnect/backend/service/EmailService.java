@@ -1,10 +1,12 @@
 package com.evconnect.backend.service;
 
 import com.evconnect.backend.entity.Booking;
-import com.resend.Resend;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -13,20 +15,16 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class EmailService {
 
-    @Value("${resend.api.key:re_123456789}")
-    private String resendApiKey;
+    @Autowired
+    private JavaMailSender mailSender;
 
-    @Value("${resend.from.email:onboarding@resend.dev}")
+    @Value("${spring.mail.username}")
     private String fromEmail;
 
-    /**
-     * Sends a booking confirmation email with OTP to the user.
-     * Runs asynchronously so it never blocks the booking API response.
-     */
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
-        System.out.println("📧 Starting email send process... (async via Resend)");
-        
+        System.out.println("📧 Starting email send process (async via Brevo)...");
+
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
             return;
@@ -44,26 +42,22 @@ public class EmailService {
 
             System.out.println("📧 Preparing email to: " + to);
 
-            String subject = "⚡ EV Connect — Your Booking OTP & Confirmation";
+            String subject = "⚡ EV CONNECT - Your Booking OTP & Confirmation";
             String html    = buildEmailHtml(name, otp, station, slotTime, date);
 
-            Resend resend = new Resend(resendApiKey);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "EV CONNECT");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(html, true);
 
-            CreateEmailOptions params = CreateEmailOptions.builder()
-                    .from(fromEmail)
-                    .to(to)
-                    .subject(subject)
-                    .html(html)
-                    .build();
-
-            System.out.println("📧 Sending email via Resend...");
-            CreateEmailResponse data = resend.emails().send(params);
-
+            System.out.println("📧 Sending email...");
+            mailSender.send(message);
             System.out.println("✅ Booking confirmation email sent to: " + to);
-            System.out.println("📧 Resend Email ID: " + data.getId());
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to send booking email via Resend!");
+            System.err.println("❌ Failed to send booking email: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -91,7 +85,7 @@ public class EmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>EV Connect</h1>
+                        <h1>EV CONNECT</h1>
                     </div>
                     <div class="content">
                         <p>Dear <strong>""" + name + """
@@ -125,10 +119,10 @@ public class EmailService {
                         </table>
                         
                         <p>If you have any questions, please contact our support team at support@evconnect.in.</p>
-                        <p>Thank you for choosing EV Connect.</p>
+                        <p>Thank you for choosing EV CONNECT.</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; 2026 EV Connect. All rights reserved.</p>
+                        <p>&copy; 2026 EV CONNECT. All rights reserved.</p>
                         <p>This is an automated message, please do not reply to this email.</p>
                     </div>
                 </div>
