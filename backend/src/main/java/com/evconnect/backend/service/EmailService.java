@@ -21,9 +21,14 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${spring.mail.password}")
+    private String smtpPassword;
+
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
         System.out.println("📧 Starting email send process (async via Brevo SMTP)...");
+        System.out.println("🔍 SMTP Username: " + fromEmail);
+        System.out.println("🔍 SMTP Password loaded? " + (smtpPassword != null && !smtpPassword.isEmpty() ? "Yes (starts with: " + smtpPassword.substring(0, Math.min(8, smtpPassword.length())) + ")" : "No"));
 
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
@@ -45,12 +50,14 @@ public class EmailService {
             String subject = "⚡ EV CONNECT - Your Booking OTP & Confirmation";
             String htmlContent = buildEmailHtml(name, otp, station, slotTime, date);
 
+            System.out.println("📧 Creating MimeMessage...");
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(fromEmail, "EV CONNECT");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
+            System.out.println("📧 MimeMessage created successfully.");
 
             System.out.println("📧 Sending email via Brevo SMTP...");
             mailSender.send(message);
