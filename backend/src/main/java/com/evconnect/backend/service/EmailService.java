@@ -1,37 +1,32 @@
 package com.evconnect.backend.service;
 
 import com.evconnect.backend.entity.Booking;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Value("${BREVO_API_KEY}")
-    private String brevoApiKey;
+    @Autowired
+    private JavaMailSender mailSender;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
-        System.out.println("📧 Starting email send process (async via Brevo API)...");
-        System.out.println("🔍 BREVO_API_KEY loaded? " + (brevoApiKey != null && !brevoApiKey.isEmpty() ? "Yes (length: " + brevoApiKey.length() + ", starts with: " + brevoApiKey.substring(0, Math.min(10, brevoApiKey.length())) + ")" : "No"));
+        System.out.println("📧 Starting email send process (async via Brevo SMTP)...");
 
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
-            return;
-        }
-
-        if (brevoApiKey == null || brevoApiKey.isEmpty()) {
-            System.out.println("⚠️ BREVO_API_KEY not set, skipping email.");
             return;
         }
 
@@ -47,57 +42,20 @@ public class EmailService {
 
             System.out.println("📧 Preparing email to: " + to);
 
-            // Prepare Brevo API request body
-            Map<String, Object> sender = new HashMap<>();
-            sender.put("name", "EV CONNECT");
-            sender.put("email", "evconnect.service@gmail.com");
-
-            Map<String, Object> recipient = new HashMap<>();
-            recipient.put("email", to);
-            recipient.put("name", name);
-
             String subject = "⚡ EV CONNECT - Your Booking OTP & Confirmation";
             String htmlContent = buildEmailHtml(name, otp, station, slotTime, date);
 
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("sender", sender);
-            requestBody.put("to", new Object[]{recipient});
-            requestBody.put("subject", subject);
-            requestBody.put("htmlContent", htmlContent);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "EV CONNECT");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
 
-            System.out.println("📧 Request Body: " + requestBody);
+            System.out.println("📧 Sending email via Brevo SMTP...");
+            mailSender.send(message);
+            System.out.println("✅ Booking confirmation email sent to: " + to);
 
-            // Prepare headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", brevoApiKey);
-            System.out.println("📧 Request Headers: " + headers);
-
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-
-            System.out.println("📧 Sending email via Brevo API to https://api.brevo.com/v3/smtp/email...");
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "https://api.brevo.com/v3/smtp/email",
-                    HttpMethod.POST,
-                    request,
-                    String.class
-            );
-
-            System.out.println("📧 Response Status: " + response.getStatusCode());
-            System.out.println("📧 Response Body: " + response.getBody());
-
-            if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
-                System.out.println("✅ Booking confirmation email sent to: " + to);
-            } else {
-                System.err.println("❌ Failed to send email. Status code: " + response.getStatusCode());
-                System.err.println("Response: " + response.getBody());
-            }
-
-        } catch (HttpClientErrorException e) {
-            System.err.println("❌ HTTP Error sending booking email: " + e.getMessage());
-            System.err.println("❌ Status Code: " + e.getStatusCode());
-            System.err.println("❌ Response Body: " + e.getResponseBodyAsString());
-            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("❌ Failed to send booking email: " + e.getMessage());
             e.printStackTrace();
