@@ -22,7 +22,7 @@ public class EmailService {
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
         System.out.println("📧 Starting email send process (async via Brevo API)...");
-        System.out.println("🔍 BREVO_API_KEY loaded? " + (brevoApiKey != null && !brevoApiKey.isEmpty() ? "Yes (starts with: " + brevoApiKey.substring(0, Math.min(8, brevoApiKey.length())) + ")" : "No"));
+        System.out.println("🔍 BREVO_API_KEY loaded? " + (brevoApiKey != null && !brevoApiKey.isEmpty() ? "Yes (length: " + brevoApiKey.length() + ", starts with: " + brevoApiKey.substring(0, Math.min(10, brevoApiKey.length())) + ")" : "No"));
 
         if (booking.getUser() == null || booking.getUser().getEmail() == null) {
             System.out.println("⚠️ No user or user email found, skipping email.");
@@ -64,20 +64,26 @@ public class EmailService {
             requestBody.put("subject", subject);
             requestBody.put("htmlContent", htmlContent);
 
+            System.out.println("📧 Request Body: " + requestBody);
+
             // Prepare headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", brevoApiKey);
+            System.out.println("📧 Request Headers: " + headers);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
-            System.out.println("📧 Sending email via Brevo API...");
+            System.out.println("📧 Sending email via Brevo API to https://api.brevo.com/v3/smtp/email...");
             ResponseEntity<String> response = restTemplate.exchange(
                     "https://api.brevo.com/v3/smtp/email",
                     HttpMethod.POST,
                     request,
                     String.class
             );
+
+            System.out.println("📧 Response Status: " + response.getStatusCode());
+            System.out.println("📧 Response Body: " + response.getBody());
 
             if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
                 System.out.println("✅ Booking confirmation email sent to: " + to);
