@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,18 +18,7 @@ public class EmailService {
     @Value("${BREVO_API_KEY}")
     private String brevoApiKey;
 
-    private final RestTemplate restTemplate;
-
-    public EmailService() {
-        this.restTemplate = new RestTemplate();
-        this.restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-            @Override
-            public boolean hasError(ClientHttpResponse response) throws IOException {
-                // Always return false so we can handle all responses manually
-                return false;
-            }
-        });
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Async("emailExecutor")
     public void sendBookingConfirmation(Booking booking) {
@@ -105,6 +93,11 @@ public class EmailService {
                 System.err.println("Response: " + response.getBody());
             }
 
+        } catch (HttpClientErrorException e) {
+            System.err.println("❌ HTTP Error sending booking email: " + e.getMessage());
+            System.err.println("❌ Status Code: " + e.getStatusCode());
+            System.err.println("❌ Response Body: " + e.getResponseBodyAsString());
+            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("❌ Failed to send booking email: " + e.getMessage());
             e.printStackTrace();
