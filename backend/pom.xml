@@ -51,13 +51,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
-		
-		<!-- Brevo API (for reliable email sending) -->
-		<dependency>
-			<groupId>com.brevo</groupId>
-			<artifactId>brevo-java</artifactId>
-			<version>3.0.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
